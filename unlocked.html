@@ -1,53 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>STACKORY™ SYSTEM</title>
-
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <title>STACKORY™ ARTIFACT</title>
 
   <style>
     body {
       background:#000;
       color:#fff;
       font-family:-apple-system, sans-serif;
-      max-width:650px;
+      max-width:900px;
       margin:auto;
       padding:30px;
     }
 
-    h2 { text-align:center; color:gold; }
-
-    select, button {
-      width:100%;
-      padding:14px;
-      margin-bottom:15px;
-      border-radius:8px;
-      border:none;
-      background:#111;
-      color:#fff;
-    }
-
-    button {
-      background:gold;
-      color:black;
-      font-weight:bold;
-      cursor:pointer;
-    }
-
-    #output {
-      display:none;
-      margin-top:25px;
-      border:2px solid gold;
-      padding:20px;
-      border-radius:12px;
-    }
-
-    .snapshot {
-      margin-top:20px;
-      padding:20px;
-      border:2px solid gold;
-      border-radius:12px;
+    h1 {
+      color:gold;
       text-align:center;
+    }
+
+    .card {
+      border:2px solid gold;
+      border-radius:12px;
+      padding:20px;
+      margin-top:20px;
+      background:#0a0a0a;
     }
 
     .row {
@@ -60,173 +36,101 @@
     .label { color:#aaa; }
     .value { font-weight:bold; }
 
-    .badge {
-      text-align:center;
-      margin:15px 0;
-      font-weight:bold;
-      font-size:18px;
+    .section-title {
+      color:gold;
+      margin-bottom:10px;
     }
   </style>
 </head>
 
 <body>
 
-<h2>STACKORY™ SYSTEM</h2>
+<h1>STACKORY™ ARTIFACT REPORT</h1>
 
-<select id="domain" onchange="updateCerts()">
-  <option value="">Select Domain</option>
-  <option value="ENGINEERING">Engineering</option>
-  <option value="PM">Project Management</option>
-  <option value="DESIGN">Design / UX</option>
-  <option value="MARKETING">Marketing</option>
-  <option value="ESG">ESG / Sustainability</option>
-  <option value="OPS">Operations</option>
-  <option value="DATA">Data & Analytics</option>
-  <option value="HEALTH">Healthcare</option>
-</select>
-
-<select id="cert">
-  <option value="">Select Certification</option>
-</select>
-
-<select id="experience">
-  <option value="">Experience Level</option>
-  <option value="0-1">0–1</option>
-  <option value="2-3">2–3</option>
-  <option value="4-6">4–6</option>
-  <option value="7+">7+</option>
-</select>
-
-<select id="hours">
-  <option value="">Weekly Study Commitment</option>
-  <option value="3">Light</option>
-  <option value="7">Moderate</option>
-  <option value="12">Focused</option>
-  <option value="15">Accelerated</option>
-</select>
-
-<button onclick="generate()">ASSIGN POSITION</button>
-
-<div id="output"></div>
+<div id="report"></div>
 
 <script>
 
-// DATA (same as before)
-const certMap = {
-  ENGINEERING:["FE","PE","SSGB","SSBB","PMP"],
-  PM:["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
-  DESIGN:["GOOGLE_UX","ADOBE"],
-  MARKETING:["HUBSPOT","GOOGLE_DM"],
-  ESG:["GRI","CFA_ESG"],
-  OPS:["SSGB","SSBB"],
-  DATA:["GOOGLE_DA","POWERBI"],
-  HEALTH:["RN","NP","CCRN","USMLE"]
+// same cert data (simplified reuse)
+const certData = {
+  PMP:{name:"PMP", difficulty:8, salary:9, time:6},
+  FE:{name:"FE", difficulty:7, salary:8, time:6},
+  PE:{name:"PE", difficulty:9, salary:10, time:12},
+  RN:{name:"RN", difficulty:6, salary:7, time:6},
+  NP:{name:"NP", difficulty:9, salary:10, time:12},
+  USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
 };
-
-const certNames = {
-  FE:"FE", PE:"PE", PMP:"PMP",
-  GOOGLE_PM:"Google PM",
-  GOOGLE_UX:"Google UX",
-  ADOBE:"Adobe",
-  HUBSPOT:"HubSpot",
-  RN:"RN", NP:"NP", CCRN:"CCRN", USMLE:"USMLE"
-};
-
-function updateCerts(){
-  const domain = document.getElementById("domain").value;
-  const cert = document.getElementById("cert");
-
-  cert.innerHTML = `<option>Select Certification</option>`;
-
-  certMap[domain]?.forEach(c=>{
-    cert.innerHTML += `<option value="${c}">${certNames[c]}</option>`;
-  });
-}
-
-function computeScore(exp,hours){
-  let score=0;
-  if(exp==="0-1") score+=10;
-  if(exp==="2-3") score+=20;
-  if(exp==="4-6") score+=30;
-  if(exp==="7+") score+=40;
-
-  if(hours>=12) score+=30;
-  else if(hours>=7) score+=20;
-  else score+=10;
-
-  return score;
-}
 
 function getAccess(score){
-  if(score>=85) return {label:"EXECUTIVE", color:"gold"};
-  if(score>=70) return {label:"BOARDROOM", color:"#fff"};
-  if(score>=40) return {label:"CONDITIONAL", color:"gray"};
-  return {label:"NO ACCESS", color:"red"};
+  if(score>=85) return "EXECUTIVE";
+  if(score>=70) return "BOARDROOM";
+  if(score>=40) return "CONDITIONAL";
+  return "RESTRICTED";
 }
 
-function generate(){
+// LOAD USER DATA
+const user = JSON.parse(localStorage.getItem("stackory_user"));
 
-  const cert = document.getElementById("cert").value;
-  const exp = document.getElementById("experience").value;
-  const hours = parseInt(document.getElementById("hours").value);
-
-  if(!cert || !exp || !hours){
-    alert("Complete all fields");
-    return;
-  }
-
-  const score = computeScore(exp,hours);
-  const access = getAccess(score);
-
-  const output = document.getElementById("output");
-  output.style.display="block";
-
-  output.innerHTML = `
-
-    <div class="badge">Stackory™ Index: ${score}</div>
-
-    <div class="row">
-      <div class="label">Position</div>
-      <div class="value">${certNames[cert]}</div>
-    </div>
-
-    <div class="row">
-      <div class="label">Access</div>
-      <div class="value" style="color:${access.color}">
-        ${access.label}
-      </div>
-    </div>
-
-    <div id="snapshot" class="snapshot">
-      <h3>STACKORY™ SNAPSHOT</h3>
-      <p>Index: ${score}</p>
-      <p>Access: ${access.label}</p>
-      <p>Position: ${certNames[cert]}</p>
-    </div>
-
-    <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
-
-    <br><br>
-
-    <button onclick="checkout()">UNLOCK EXECUTION</button>
-  `;
+if(!user){
+  document.getElementById("report").innerHTML =
+    "<p>No data found. Please return to system.</p>";
 }
 
-// SNAPSHOT DOWNLOAD
-function downloadSnapshot(){
-  html2canvas(document.getElementById("snapshot")).then(canvas=>{
-    const link = document.createElement("a");
-    link.download = "stackory_snapshot.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
+// DERIVED LOGIC
+const cert = user.cert;
+const data = certData[cert] || {name:cert, difficulty:5, salary:5, time:3};
+const access = getAccess(user.score);
+
+// GAP LOGIC
+let gap = "None";
+if(data.difficulty > 7 && user.exp === "0-1"){
+  gap = "Experience gap for certification difficulty";
 }
 
-// STRIPE
-function checkout(){
-  window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
-}
+// TIMELINE
+let timeline = `${data.time} months estimated completion`;
 
+// AUTHORITY SIGNAL
+let authority = data.salary >= 9 ? "High Market Authority" : "Moderate Authority";
+
+// RENDER REPORT
+document.getElementById("report").innerHTML = `
+
+<div class="card">
+  <div class="section-title">CREDENTIAL CLASSIFICATION</div>
+
+  <div class="row">
+    <div class="label">Certification</div>
+    <div class="value">${data.name}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Experience Level</div>
+    <div class="value">${user.exp}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Access Tier</div>
+    <div class="value">${access}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">GAPS DETECTED</div>
+  <div>${gap}</div>
+</div>
+
+<div class="card">
+  <div class="section-title">EXECUTION TIMELINE</div>
+  <div>${timeline}</div>
+</div>
+
+<div class="card">
+  <div class="section-title">AUTHORITY SIGNAL</div>
+  <div>${authority}</div>
+</div>
+
+`;
 </script>
 
 </body>
