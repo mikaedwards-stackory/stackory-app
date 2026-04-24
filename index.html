@@ -3,8 +3,6 @@
 <head>
   <title>STACKORY™ SYSTEM</title>
 
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
   <style>
     body {
       background:#000;
@@ -50,13 +48,6 @@
       background:#0a0a0a;
     }
 
-    .locked {
-      color:#666;
-      font-size:12px;
-      text-align:center;
-      margin-top:10px;
-    }
-
     .progress-bar {
       width:100%;
       background:#111;
@@ -70,6 +61,12 @@
       background:gold;
     }
 
+    .locked {
+      color:#666;
+      text-align:center;
+      font-size:12px;
+      margin-top:10px;
+    }
   </style>
 </head>
 
@@ -78,34 +75,34 @@
 <h2>STACKORY™ SYSTEM</h2>
 
 <select id="domain" onchange="updateCerts()">
-  <option value="">Select Domain</option>
-  <option value="ENGINEERING">Engineering</option>
-  <option value="PM">Project Management</option>
-  <option value="DESIGN">Design / UX</option>
-  <option value="MARKETING">Marketing</option>
-  <option value="ESG">ESG / Sustainability</option>
-  <option value="OPS">Operations</option>
-  <option value="DATA">Data & Analytics</option>
-  <option value="HEALTH">Healthcare</option>
+  <option value="">DOMAIN</option>
+  <option value="ENGINEERING">ENGINEERING</option>
+  <option value="PM">PROJECT MANAGEMENT</option>
+  <option value="DESIGN">DESIGN</option>
+  <option value="MARKETING">MARKETING</option>
+  <option value="ESG">ESG</option>
+  <option value="OPS">OPERATIONS</option>
+  <option value="DATA">DATA</option>
+  <option value="HEALTH">HEALTHCARE</option>
 </select>
 
 <select id="cert">
-  <option value="">Select Certification</option>
+  <option value="">CERTIFICATION</option>
 </select>
 
 <select id="experience">
-  <option value="">Experience</option>
-  <option value="0-1">0–1 years</option>
-  <option value="2-3">2–3 years</option>
-  <option value="4-6">4–6 years</option>
-  <option value="7+">7+ years</option>
+  <option value="">EXPERIENCE</option>
+  <option value="0-1">0–1</option>
+  <option value="2-3">2–3</option>
+  <option value="4-6">4–6</option>
+  <option value="7+">7+</option>
 </select>
 
 <select id="hours">
-  <option value="">Study Hours</option>
-  <option value="3">2–4 hrs</option>
-  <option value="7">5–8 hrs</option>
-  <option value="12">9–12 hrs</option>
+  <option value="">STUDY CAPACITY</option>
+  <option value="3">LOW</option>
+  <option value="7">MEDIUM</option>
+  <option value="12">HIGH</option>
 </select>
 
 <button onclick="generate()">ASSIGN POSITION</button>
@@ -114,34 +111,17 @@
 
 <script>
 
-// 🔥 CERT DATA (ACRONYM + FULL NAME)
 const certData = {
-
-  // ENGINEERING
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
-
-  // PM
   PMP:"Project Management Professional",
   GOOGLE_PM:"Google Project Management Certificate",
-
-  // DESIGN
   GOOGLE_UX:"Google UX Design Certificate",
   ADOBE:"Adobe Certified Professional",
-
-  // MARKETING
   HUBSPOT:"HubSpot Marketing Certification",
-
-  // ESG
   GRI:"Global Reporting Initiative Certification",
-
-  // OPS
   SSGB:"Six Sigma Green Belt",
-
-  // DATA
   GOOGLE_DA:"Google Data Analytics Certificate",
-
-  // HEALTHCARE
   CNA:"Certified Nursing Assistant",
   LPN:"Licensed Practical Nurse",
   RN:"Registered Nurse",
@@ -152,7 +132,6 @@ const certData = {
   USMLE:"United States Medical Licensing Examination"
 };
 
-// 🔥 DOMAIN MAP (FULL)
 const certMap = {
   ENGINEERING:["FE","PE"],
   PM:["GOOGLE_PM","PMP"],
@@ -164,7 +143,6 @@ const certMap = {
   HEALTH:["CNA","LPN","RN","BSN","NP","CCRN","CRA","USMLE"]
 };
 
-// 🔥 PATHWAYS (FULL SYSTEM)
 const pathways = {
   ENGINEERING:["FE","PE"],
   PM:["GOOGLE_PM","PMP"],
@@ -176,12 +154,11 @@ const pathways = {
   HEALTH:["CNA","LPN","RN","BSN","NP"]
 };
 
-// 🔥 DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
 
-  cert.innerHTML = `<option value="">Select Certification</option>`;
+  cert.innerHTML = `<option value="">CERTIFICATION</option>`;
 
   certMap[domain]?.forEach(c=>{
     cert.innerHTML += `<option value="${c}">
@@ -190,7 +167,6 @@ function updateCerts(){
   });
 }
 
-// 🔥 SCORE
 function computeScore(exp,hours){
   let score = 0;
 
@@ -206,39 +182,27 @@ function computeScore(exp,hours){
   return score;
 }
 
-// 🔥 PATHWAY ENGINE
 function getPathInsights(domain, cert, exp){
 
   const path = pathways[domain] || [];
   const index = path.indexOf(cert);
 
-  let next = path[index + 1] || "Top Tier";
-  let warning = "";
-  let insight = "Aligned with pathway";
+  let next = path[index + 1] || "TOP";
+  let risk = "LOW";
+  let signal = "ALIGNED";
 
-  // SKIP DETECTION
-  if(index > 1 && exp === "0-1"){
-    warning = "⚠ Potential pathway skip detected";
-  }
-
-  // HEALTHCARE LOGIC
-  if(cert === "NP" && exp === "0-1"){
-    warning = "⚠ RN/BSN typically required before NP";
-  }
-
-  if(cert === "CRA" && exp === "0-1"){
-    insight = "✓ Transition: Research support → Clinical Research pathway";
-  }
+  if(index > 1 && exp === "0-1") risk = "HIGH";
+  if(cert === "NP" && exp === "0-1") risk = "HIGH";
+  if(cert === "CRA" && exp === "0-1") signal = "TRANSITION";
 
   return {
     next,
-    warning,
-    insight,
-    path: path.join(" → ")
+    risk,
+    signal,
+    path: path.map(p => p === cert ? `[${p}]` : p).join(" → ")
   };
 }
 
-// 🔥 MAIN
 function generate(){
 
   const domain = document.getElementById("domain").value;
@@ -247,7 +211,7 @@ function generate(){
   const hours = parseInt(document.getElementById("hours").value);
 
   if(!cert || !exp || !hours){
-    alert("Complete all fields");
+    alert("INPUT REQUIRED");
     return;
   }
 
@@ -259,45 +223,42 @@ function generate(){
 
   output.innerHTML = `
 
-    <h3 style="color:gold;">STACKORY™ POSITION</h3>
-
-    <p><strong>Score:</strong> ${score}</p>
-    <p><strong>Certification:</strong> ${cert} — ${certData[cert]}</p>
+    <h3 style="color:gold;">STACKORY™ INDEX: ${score}</h3>
 
     <div class="progress-bar">
       <div class="progress-fill" style="width:${score}%"></div>
     </div>
 
     <div class="artifact">
-      <h4 style="color:gold;">PATHWAY</h4>
-      <p>${insights.path || "Custom / Non-linear pathway"}</p>
+      <div class="title">PATHWAY</div>
+      <p>${insights.path}</p>
     </div>
 
     <div class="artifact">
-      <h4 style="color:gold;">NEXT BEST MOVE</h4>
+      <div class="title">NEXT MOVE</div>
       <p>${insights.next}</p>
     </div>
 
     <div class="artifact">
-      <h4 style="color:gold;">POSITIONING SIGNAL</h4>
-      <p>${insights.insight}</p>
-      <p style="color:red;">${insights.warning}</p>
+      <div class="title">POSITION RISK</div>
+      <p>${insights.risk}</p>
     </div>
 
-    <div class="locked">
-      Full execution strategy locked 🔒
+    <div class="artifact">
+      <div class="title">MARKET SIGNAL</div>
+      <p>${insights.signal}</p>
     </div>
+
+    <div class="locked">EXECUTION LOCKED</div>
 
     <br>
 
-    <button onclick="checkout()">UNLOCK FULL STRATEGY</button>
+    <button onclick="checkout()">UNLOCK</button>
   `;
 }
 
-// 🔥 CHECKOUT
 function checkout(){
-
-  const data = {
+  localStorage.setItem("stackory_user", JSON.stringify({
     cert: document.getElementById("cert").value,
     exp: document.getElementById("experience").value,
     hours: document.getElementById("hours").value,
@@ -305,9 +266,7 @@ function checkout(){
       document.getElementById("experience").value,
       parseInt(document.getElementById("hours").value)
     )
-  };
-
-  localStorage.setItem("stackory_user", JSON.stringify(data));
+  }));
 
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
