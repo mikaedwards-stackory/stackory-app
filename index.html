@@ -50,21 +50,19 @@
     }
 
     .label { color:#aaa; }
-    .value { font-weight:bold; }
 
-    .badge {
-      text-align:center;
-      margin:15px 0;
-      font-weight:bold;
-      font-size:18px;
+    .progress-bar {
+      width:100%;
+      background:#111;
+      border-radius:10px;
+      overflow:hidden;
+      margin-top:10px;
     }
 
-    .snapshot {
-      margin-top:20px;
-      padding:20px;
-      border:2px solid gold;
-      border-radius:12px;
-      text-align:center;
+    .progress-fill {
+      height:10px;
+      background:gold;
+      width:0%;
     }
 
     .artifact {
@@ -81,6 +79,7 @@
       margin-top:10px;
       font-size:13px;
     }
+
   </style>
 </head>
 
@@ -126,52 +125,42 @@
 
 <script>
 
-// 🔥 CERT DATA (WITH FUTURE AI HOOKS)
+// CERT DATA (AI READY)
 const certData = {
-
   PMP:{name:"PMP", difficulty:8, salary:9, time:6},
-  CAPM:{name:"CAPM", difficulty:5, salary:6, time:3},
   GOOGLE_PM:{name:"Google PM", difficulty:4, salary:5, time:2},
-
   GOOGLE_UX:{name:"Google UX", difficulty:5, salary:6, time:3},
-  ADOBE:{name:"Adobe Certified Professional", difficulty:4, salary:5, time:2},
-
+  ADOBE:{name:"Adobe", difficulty:4, salary:5, time:2},
   HUBSPOT:{name:"HubSpot", difficulty:3, salary:5, time:1},
-
-  GRI:{name:"GRI Certification", difficulty:6, salary:7, time:4},
-  CFA_ESG:{name:"CFA ESG", difficulty:7, salary:8, time:5},
-
+  GRI:{name:"GRI", difficulty:6, salary:7, time:4},
   SSGB:{name:"Six Sigma Green Belt", difficulty:6, salary:7, time:4},
-
   GOOGLE_DA:{name:"Google Data Analytics", difficulty:5, salary:7, time:3},
 
-  FE:{name:"Fundamentals of Engineering", difficulty:7, salary:8, time:6},
-  PE:{name:"Professional Engineer", difficulty:9, salary:10, time:12},
+  FE:{name:"FE", difficulty:7, salary:8, time:6},
+  PE:{name:"PE", difficulty:9, salary:10, time:12},
 
   CNA:{name:"CNA", difficulty:3, salary:4, time:2},
   LPN:{name:"LPN", difficulty:5, salary:6, time:4},
-  RN:{name:"Registered Nurse", difficulty:6, salary:7, time:6},
+  RN:{name:"RN", difficulty:6, salary:7, time:6},
   BSN:{name:"BSN", difficulty:7, salary:8, time:8},
-  NP:{name:"Nurse Practitioner", difficulty:9, salary:10, time:12},
-  CCRN:{name:"Critical Care RN", difficulty:8, salary:9, time:6},
-  CRA:{name:"Clinical Research Associate", difficulty:7, salary:8, time:5},
-  USMLE:{name:"Physician Pathway", difficulty:10, salary:10, time:24}
-
+  NP:{name:"NP", difficulty:9, salary:10, time:12},
+  CCRN:{name:"CCRN", difficulty:8, salary:9, time:6},
+  CRA:{name:"CRA", difficulty:7, salary:8, time:5},
+  USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
 };
 
 // DOMAIN MAP
 const certMap = {
   ENGINEERING:["FE","PE"],
-  PM:["PMP","CAPM","GOOGLE_PM"],
+  PM:["PMP","GOOGLE_PM"],
   DESIGN:["GOOGLE_UX","ADOBE"],
   MARKETING:["HUBSPOT"],
-  ESG:["GRI","CFA_ESG"],
+  ESG:["GRI"],
   OPS:["SSGB"],
   DATA:["GOOGLE_DA"],
   HEALTH:["CNA","LPN","RN","BSN","NP","CCRN","CRA","USMLE"]
 };
 
-// DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
@@ -182,7 +171,7 @@ function updateCerts(){
   });
 }
 
-// SCORE ENGINE
+// SCORE
 function computeScore(exp,hours){
   let score=0;
 
@@ -206,19 +195,13 @@ function getAccess(score){
   return {label:"NO ACCESS", color:"red"};
 }
 
-// 🔥 DYNAMIC ARTIFACT LOGIC
-function buildArtifact(cert, exp){
-
-  const data = certData[cert];
-
-  let readiness = data.difficulty > 7 && exp === "0-1" ? "⚠ Advanced Track" : "✔ Aligned";
-
-  return `
-    <p>✔ Certification Complexity: ${data.difficulty}/10</p>
-    <p>✔ Market Value Signal: ${data.salary}/10</p>
-    <p>✔ Time Investment: ${data.time} months</p>
-    <p>${readiness}</p>
-  `;
+// RANK (TOP %)
+function getRank(score){
+  if(score>=90) return "Top 5%";
+  if(score>=80) return "Top 10%";
+  if(score>=70) return "Top 20%";
+  if(score>=50) return "Top 40%";
+  return "Below Top 50%";
 }
 
 // MAIN
@@ -235,55 +218,94 @@ function generate(){
 
   const score = computeScore(exp,hours);
   const access = getAccess(score);
-  const artifactPreview = buildArtifact(cert, exp);
+  const rank = getRank(score);
 
   const output = document.getElementById("output");
   output.style.display="block";
 
   output.innerHTML = `
-    <div class="badge">Stackory™ Index: ${score}</div>
 
-    <div class="row">
-      <div class="label">Position Assigned</div>
-      <div class="value">${certData[cert].name}</div>
+  <!-- SNAPSHOT CARD -->
+  <div id="snapshot" style="
+    background:#000;
+    color:#fff;
+    padding:30px;
+    border-radius:16px;
+    border:2px solid gold;
+    text-align:center;
+  ">
+
+    <div style="color:gold; font-size:14px;">STACKORY™ SYSTEM</div>
+
+    <h2 style="color:gold;">SNAPSHOT REPORT</h2>
+
+    <div style="
+      display:inline-block;
+      padding:8px 18px;
+      border-radius:20px;
+      margin:10px 0 20px 0;
+      font-weight:bold;
+      background:${access.color === "gold" ? "gold" : "#222"};
+      color:${access.color === "gold" ? "#000" : access.color};
+    ">
+      ${access.label}
     </div>
 
-    <div class="row">
-      <div class="label">Boardroom Access™</div>
-      <div class="value" style="color:${access.color}">
-        ${access.label}
-      </div>
+    <div style="font-size:40px; font-weight:bold;">
+      ${score}
     </div>
 
-    <div id="snapshot" class="snapshot">
-      <h3 style="color:gold;">STACKORY™ SNAPSHOT</h3>
-      <p>Index: ${score}</p>
-      <p>Access: ${access.label}</p>
-      <p>${certData[cert].name}</p>
+    <div style="color:#aaa;">STACKORY™ INDEX</div>
+
+    <div style="margin-top:10px;">
+      ${rank}
     </div>
 
-    <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
-
-    <div class="artifact">
-      <h3 style="color:gold;">CREDENTIAL MATRIX (PREVIEW)</h3>
-      ${artifactPreview}
-      <div class="locked">Full artifact locked 🔒</div>
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar">
+      <div class="progress-fill" style="width:${score}%"></div>
     </div>
 
-    <br>
+    <div style="margin-top:15px;">
+      <strong>POSITION:</strong> ${certData[cert].name}
+    </div>
 
-    <button onclick="checkout()">UNLOCK FULL ARTIFACT</button>
+    <div style="margin-top:10px;">
+      <strong>ELIGIBILITY:</strong> ${score >=70 ? "Eligible for Boardroom" : "Not Eligible"}
+    </div>
+
+  </div>
+
+  <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
+
+  <!-- ARTIFACT PREVIEW -->
+  <div class="artifact">
+    <h3 style="color:gold;">CREDENTIAL MATRIX (PREVIEW)</h3>
+    <p>✔ Complexity Score: ${certData[cert].difficulty}/10</p>
+    <p>✔ Market Value: ${certData[cert].salary}/10</p>
+    <p>✔ Time Commitment: ${certData[cert].time} months</p>
+
+    <div class="locked">Full artifact locked 🔒</div>
+  </div>
+
+  <br>
+
+  <button onclick="checkout()">UNLOCK FULL ARTIFACT</button>
   `;
 }
 
-// SNAPSHOT
+// SNAPSHOT FIXED
 function downloadSnapshot(){
-  html2canvas(document.getElementById("snapshot")).then(canvas=>{
-    const link = document.createElement("a");
-    link.download = "stackory_snapshot.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
+  const el = document.getElementById("snapshot");
+
+  setTimeout(() => {
+    html2canvas(el, {backgroundColor:"#000", scale:2}).then(canvas=>{
+      const link = document.createElement("a");
+      link.download="stackory_snapshot.png";
+      link.href=canvas.toDataURL();
+      link.click();
+    });
+  },300);
 }
 
 // STRIPE
