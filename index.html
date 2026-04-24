@@ -48,6 +48,13 @@
       background:#0a0a0a;
     }
 
+    .locked {
+      color:#666;
+      text-align:center;
+      font-size:12px;
+      margin-top:10px;
+    }
+
     .progress-bar {
       width:100%;
       background:#111;
@@ -59,13 +66,6 @@
     .progress-fill {
       height:10px;
       background:gold;
-    }
-
-    .locked {
-      color:#666;
-      text-align:center;
-      font-size:12px;
-      margin-top:10px;
     }
   </style>
 </head>
@@ -90,6 +90,14 @@
   <option value="">CERTIFICATION</option>
 </select>
 
+<select id="education">
+  <option value="">EDUCATION</option>
+  <option value="HS">HIGH SCHOOL</option>
+  <option value="AA">ASSOCIATE</option>
+  <option value="BA">BACHELOR</option>
+  <option value="MS">MASTER+</option>
+</select>
+
 <select id="experience">
   <option value="">EXPERIENCE</option>
   <option value="0-1">0–1</option>
@@ -99,10 +107,11 @@
 </select>
 
 <select id="hours">
-  <option value="">STUDY CAPACITY</option>
-  <option value="3">LOW</option>
-  <option value="7">MEDIUM</option>
-  <option value="12">HIGH</option>
+  <option value="">WEEKLY STUDY HOURS</option>
+  <option value="3">2–4 HOURS</option>
+  <option value="7">5–8 HOURS</option>
+  <option value="12">9–12 HOURS</option>
+  <option value="15">12+ HOURS</option>
 </select>
 
 <button onclick="generate()">ASSIGN POSITION</button>
@@ -111,47 +120,21 @@
 
 <script>
 
+// CERT DISPLAY
 const certData = {
+  PMP:"Project Management Professional",
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
-  PMP:"Project Management Professional",
-  GOOGLE_PM:"Google Project Management Certificate",
-  GOOGLE_UX:"Google UX Design Certificate",
-  ADOBE:"Adobe Certified Professional",
-  HUBSPOT:"HubSpot Marketing Certification",
-  GRI:"Global Reporting Initiative Certification",
-  SSGB:"Six Sigma Green Belt",
-  GOOGLE_DA:"Google Data Analytics Certificate",
-  CNA:"Certified Nursing Assistant",
-  LPN:"Licensed Practical Nurse",
   RN:"Registered Nurse",
-  BSN:"Bachelor of Science in Nursing",
   NP:"Nurse Practitioner",
-  CCRN:"Critical Care Registered Nurse",
-  CRA:"Clinical Research Associate",
-  USMLE:"United States Medical Licensing Examination"
+  CRA:"Clinical Research Associate"
 };
 
+// DOMAIN MAP
 const certMap = {
   ENGINEERING:["FE","PE"],
-  PM:["GOOGLE_PM","PMP"],
-  DESIGN:["GOOGLE_UX","ADOBE"],
-  MARKETING:["HUBSPOT"],
-  ESG:["GRI"],
-  OPS:["SSGB"],
-  DATA:["GOOGLE_DA"],
-  HEALTH:["CNA","LPN","RN","BSN","NP","CCRN","CRA","USMLE"]
-};
-
-const pathways = {
-  ENGINEERING:["FE","PE"],
-  PM:["GOOGLE_PM","PMP"],
-  DESIGN:["GOOGLE_UX","ADOBE"],
-  MARKETING:["HUBSPOT"],
-  ESG:["GRI"],
-  OPS:["SSGB"],
-  DATA:["GOOGLE_DA"],
-  HEALTH:["CNA","LPN","RN","BSN","NP"]
+  PM:["PMP"],
+  HEALTH:["RN","NP","CRA"]
 };
 
 function updateCerts(){
@@ -167,6 +150,7 @@ function updateCerts(){
   });
 }
 
+// SCORE
 function computeScore(exp,hours){
   let score = 0;
 
@@ -182,30 +166,9 @@ function computeScore(exp,hours){
   return score;
 }
 
-function getPathInsights(domain, cert, exp){
-
-  const path = pathways[domain] || [];
-  const index = path.indexOf(cert);
-
-  let next = path[index + 1] || "TOP";
-  let risk = "LOW";
-  let signal = "ALIGNED";
-
-  if(index > 1 && exp === "0-1") risk = "HIGH";
-  if(cert === "NP" && exp === "0-1") risk = "HIGH";
-  if(cert === "CRA" && exp === "0-1") signal = "TRANSITION";
-
-  return {
-    next,
-    risk,
-    signal,
-    path: path.map(p => p === cert ? `[${p}]` : p).join(" → ")
-  };
-}
-
+// MAIN
 function generate(){
 
-  const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert").value;
   const exp = document.getElementById("experience").value;
   const hours = parseInt(document.getElementById("hours").value);
@@ -216,7 +179,6 @@ function generate(){
   }
 
   const score = computeScore(exp,hours);
-  const insights = getPathInsights(domain, cert, exp);
 
   const output = document.getElementById("output");
   output.style.display = "block";
@@ -231,22 +193,12 @@ function generate(){
 
     <div class="artifact">
       <div class="title">PATHWAY</div>
-      <p>${insights.path}</p>
+      <p>[${cert}]</p>
     </div>
 
     <div class="artifact">
-      <div class="title">NEXT MOVE</div>
-      <p>${insights.next}</p>
-    </div>
-
-    <div class="artifact">
-      <div class="title">POSITION RISK</div>
-      <p>${insights.risk}</p>
-    </div>
-
-    <div class="artifact">
-      <div class="title">MARKET SIGNAL</div>
-      <p>${insights.signal}</p>
+      <div class="title">STATE</div>
+      <p>${score >=70 ? "ACCESS" : "RESTRICTED"}</p>
     </div>
 
     <div class="locked">EXECUTION LOCKED</div>
@@ -258,6 +210,7 @@ function generate(){
 }
 
 function checkout(){
+
   localStorage.setItem("stackory_user", JSON.stringify({
     cert: document.getElementById("cert").value,
     exp: document.getElementById("experience").value,
