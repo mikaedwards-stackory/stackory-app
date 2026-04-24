@@ -16,6 +16,14 @@
     h1 {
       color:gold;
       text-align:center;
+      margin-bottom:20px;
+    }
+
+    .status {
+      text-align:center;
+      color:gold;
+      font-weight:bold;
+      margin-bottom:20px;
     }
 
     .card {
@@ -39,6 +47,7 @@
     .section-title {
       color:gold;
       margin-bottom:10px;
+      font-size:16px;
     }
   </style>
 </head>
@@ -47,20 +56,50 @@
 
 <h1>STACKORY™ ARTIFACT REPORT</h1>
 
+<div class="status">✓ SYSTEM ACCESS GRANTED</div>
+
 <div id="report"></div>
 
 <script>
 
-// same cert data (simplified reuse)
+// 🔒 ACCESS GUARD
+const user = JSON.parse(localStorage.getItem("stackory_user"));
+
+if(!user){
+  document.body.innerHTML = `
+    <div style="text-align:center; margin-top:100px;">
+      <h2 style="color:gold;">Access Restricted</h2>
+      <p>No session detected. Please return to the system.</p>
+      <a href="/" style="color:gold;">Return to Stackory™</a>
+    </div>
+  `;
+}
+
+// 🔥 CERT DATA (same logic as index)
 const certData = {
   PMP:{name:"PMP", difficulty:8, salary:9, time:6},
+  GOOGLE_PM:{name:"Google PM", difficulty:4, salary:5, time:2},
+  GOOGLE_UX:{name:"Google UX", difficulty:5, salary:6, time:3},
+  ADOBE:{name:"Adobe", difficulty:4, salary:5, time:2},
+  HUBSPOT:{name:"HubSpot", difficulty:3, salary:5, time:1},
+  GRI:{name:"GRI", difficulty:6, salary:7, time:4},
+  SSGB:{name:"Six Sigma", difficulty:6, salary:7, time:4},
+  GOOGLE_DA:{name:"Google Data Analytics", difficulty:5, salary:7, time:3},
+
   FE:{name:"FE", difficulty:7, salary:8, time:6},
   PE:{name:"PE", difficulty:9, salary:10, time:12},
+
+  CNA:{name:"CNA", difficulty:3, salary:4, time:2},
+  LPN:{name:"LPN", difficulty:5, salary:6, time:4},
   RN:{name:"RN", difficulty:6, salary:7, time:6},
+  BSN:{name:"BSN", difficulty:7, salary:8, time:8},
   NP:{name:"NP", difficulty:9, salary:10, time:12},
+  CCRN:{name:"CCRN", difficulty:8, salary:9, time:6},
+  CRA:{name:"CRA", difficulty:7, salary:8, time:5},
   USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
 };
 
+// 🔥 ACCESS LOGIC
 function getAccess(score){
   if(score>=85) return "EXECUTIVE";
   if(score>=70) return "BOARDROOM";
@@ -68,32 +107,49 @@ function getAccess(score){
   return "RESTRICTED";
 }
 
-// LOAD USER DATA
-const user = JSON.parse(localStorage.getItem("stackory_user"));
-
-if(!user){
-  document.getElementById("report").innerHTML =
-    "<p>No data found. Please return to system.</p>";
-}
-
-// DERIVED LOGIC
+// 🔥 LOAD USER
 const cert = user.cert;
-const data = certData[cert] || {name:cert, difficulty:5, salary:5, time:3};
-const access = getAccess(user.score);
+const exp = user.exp;
+const hours = parseInt(user.hours);
+const score = user.score;
 
-// GAP LOGIC
-let gap = "None";
-if(data.difficulty > 7 && user.exp === "0-1"){
-  gap = "Experience gap for certification difficulty";
+const data = certData[cert] || {name:cert, difficulty:5, salary:5, time:3};
+const access = getAccess(score);
+
+// 🔥 GAP DETECTION
+let gap = "No critical gaps detected";
+
+if(data.difficulty >= 8 && exp === "0-1"){
+  gap = "Experience gap: certification complexity exceeds current level";
 }
 
-// TIMELINE
-let timeline = `${data.time} months estimated completion`;
+if(score < 50){
+  gap = "Positioning gap: insufficient readiness score";
+}
 
-// AUTHORITY SIGNAL
-let authority = data.salary >= 9 ? "High Market Authority" : "Moderate Authority";
+// 🔥 TIMELINE ENGINE
+let timeline;
 
-// RENDER REPORT
+if(hours >= 12){
+  timeline = `${data.time - 2} to ${data.time} months (accelerated path)`;
+} else if(hours >= 7){
+  timeline = `${data.time} to ${data.time + 2} months`;
+} else {
+  timeline = `${data.time + 2} to ${data.time + 6} months (extended path)`;
+}
+
+// 🔥 AUTHORITY SIGNAL
+let authority;
+
+if(data.salary >= 9){
+  authority = "High Authority Credential";
+} else if(data.salary >= 7){
+  authority = "Moderate Authority Credential";
+} else {
+  authority = "Entry-Level Credential Signal";
+}
+
+// 🔥 RENDER REPORT
 document.getElementById("report").innerHTML = `
 
 <div class="card">
@@ -105,14 +161,20 @@ document.getElementById("report").innerHTML = `
   </div>
 
   <div class="row">
-    <div class="label">Experience Level</div>
-    <div class="value">${user.exp}</div>
+    <div class="label">Experience</div>
+    <div class="value">${exp}</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Stackory™ Index</div>
+    <div class="value">${score}</div>
   </div>
 
   <div class="row">
     <div class="label">Access Tier</div>
     <div class="value">${access}</div>
   </div>
+
 </div>
 
 <div class="card">
