@@ -1,141 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>STACKORY™ ENGINE</title>
-
-  <style>
-    body {
-      background:#000;
-      color:#fff;
-      font-family:-apple-system, sans-serif;
-      max-width:650px;
-      margin:auto;
-      padding:30px;
-    }
-
-    h2 {
-      text-align:center;
-      color:gold;
-    }
-
-    select, input, button {
-      width:100%;
-      padding:14px;
-      margin-bottom:15px;
-      border-radius:8px;
-      border:none;
-      background:#111;
-      color:#fff;
-    }
-
-    button {
-      background:gold;
-      color:black;
-      font-weight:bold;
-      cursor:pointer;
-    }
-
-    #output {
-      display:none;
-      margin-top:25px;
-      border:2px solid gold;
-      padding:20px;
-      border-radius:12px;
-    }
-
-    .row {
-      display:flex;
-      justify-content:space-between;
-      padding:10px 0;
-      border-bottom:1px solid #222;
-    }
-
-    .label { color:#aaa; }
-    .value { color:gold; font-weight:bold; }
-
-    .badge {
-      text-align:center;
-      margin:15px 0;
-      font-weight:bold;
-      color:gold;
-    }
-  </style>
-</head>
-
-<body>
-
-<h2>STACKORY™ ENGINE</h2>
-
-<!-- DOMAIN -->
-<select id="domain" onchange="updateCerts()">
-  <option value="">Select Domain</option>
-  <option value="PM">Project Management</option>
-  <option value="UX">UX / Product Design</option>
-  <option value="DESIGN">Design / Creative</option>
-  <option value="MARKETING">Marketing</option>
-  <option value="ESG">Sustainability / ESG</option>
-</select>
-
-<!-- CERTIFICATIONS (DYNAMIC) -->
-<select id="cert">
-  <option value="">Select Certification</option>
-</select>
-
-<!-- INPUTS -->
-<input type="number" id="hours" placeholder="Hours per week commitment">
-
-<select id="experience">
-  <option value="">Experience Level</option>
-  <option value="0-1">0–1 years</option>
-  <option value="2-3">2–3 years</option>
-  <option value="4-6">4–6 years</option>
-  <option value="7+">7+ years</option>
-</select>
-
-<button onclick="generate()">GENERATE POSITION</button>
-
-<div id="output"></div>
-
 <script>
 
-// DOMAIN → CERT MAP
+// 🔥 DOMAIN → CERT MAP (UPDATED)
 const certMap = {
-  PM: ["PMP","GOOGLE_PM"],
+  PM: ["PMP", "GOOGLE_PM"],
   UX: ["GOOGLE_UX"],
   DESIGN: ["ADOBE"],
   MARKETING: ["HUBSPOT"],
-  ESG: ["ESG_GRI","ESG_CFA"]
+  ESG: ["ESG_GRI", "ESG_CFA"],
+  OPS: ["LSS"],
+  DATA: []
 };
 
-// CERT DATA
-const certData = {
-  PMP: { name:"PMP", prereq:"35 hrs required", study:"2–3 months", cost:"$405–$555", classification:"Professional" },
-  GOOGLE_PM: { name:"Google Project Management", prereq:"None", study:"3–6 months", cost:"$39/month", classification:"Foundation" },
-  GOOGLE_UX: { name:"Google UX Design", prereq:"None", study:"3–6 months", cost:"$39/month", classification:"Foundation" },
-  ADOBE: { name:"Adobe Certified Professional", prereq:"None", study:"2–4 months", cost:"$125–$180", classification:"Professional" },
-  HUBSPOT: { name:"HubSpot Marketing", prereq:"None", study:"10–20 hours", cost:"Free", classification:"Foundation" },
-  ESG_GRI: { name:"GRI Certification", prereq:"None", study:"40–60 hours", cost:"$1500+", classification:"Professional" },
-  ESG_CFA: { name:"CFA ESG Certificate", prereq:"None", study:"100+ hours", cost:"$865–$1200", classification:"Leadership" }
+// 🔥 CERT DISPLAY NAMES (IMPORTANT FOR UX)
+const certNames = {
+  PMP: "PMP",
+  GOOGLE_PM: "Google Project Management",
+  GOOGLE_UX: "Google UX Design",
+  ADOBE: "Adobe Certified Professional",
+  HUBSPOT: "HubSpot Marketing",
+  ESG_GRI: "GRI Certification",
+  ESG_CFA: "CFA ESG Certificate",
+  LSS: "Lean Six Sigma"
 };
 
-// UPDATE CERT DROPDOWN
+// 🔥 UPDATE CERT DROPDOWN (FIXED + SAFE)
 function updateCerts() {
   const domain = document.getElementById("domain").value;
   const certSelect = document.getElementById("cert");
 
+  // Reset dropdown
   certSelect.innerHTML = `<option value="">Select Certification</option>`;
 
-  if (!certMap[domain]) return;
+  if (!domain || !certMap[domain] || certMap[domain].length === 0) {
+    return;
+  }
 
   certMap[domain].forEach(cert => {
     const option = document.createElement("option");
     option.value = cert;
-    option.text = certData[cert].name;
+    option.text = certNames[cert] || cert;
     certSelect.appendChild(option);
   });
 }
 
-// READINESS CALCULATION
+// 🔥 READINESS CALCULATION
 function computeScore(exp, hours) {
   let score = 0;
 
@@ -151,14 +59,14 @@ function computeScore(exp, hours) {
   return Math.min(100, score);
 }
 
-// STATUS
+// 🔥 STATUS
 function classify(score) {
   if (score >= 70) return "READY";
   if (score >= 40) return "CONDITIONAL";
   return "NOT_READY";
 }
 
-// GENERATE OUTPUT
+// 🔥 GENERATE OUTPUT
 function generate() {
   const cert = document.getElementById("cert").value;
   const exp = document.getElementById("experience").value;
@@ -171,7 +79,6 @@ function generate() {
 
   const score = computeScore(exp, hours);
   const status = classify(score);
-  const data = certData[cert];
 
   const output = document.getElementById("output");
   output.style.display = "block";
@@ -180,10 +87,7 @@ function generate() {
     <div class="badge">${status}</div>
 
     <div class="row"><div class="label">Readiness Index</div><div class="value">${score}</div></div>
-    <div class="row"><div class="label">Classification</div><div class="value">${data.classification}</div></div>
-    <div class="row"><div class="label">Prerequisite</div><div class="value">${data.prereq}</div></div>
-    <div class="row"><div class="label">Study Commitment</div><div class="value">${data.study}</div></div>
-    <div class="row"><div class="label">Investment Range</div><div class="value">${data.cost}</div></div>
+    <div class="row"><div class="label">Selected Certification</div><div class="value">${certNames[cert]}</div></div>
 
     <br>
 
@@ -197,12 +101,9 @@ function generate() {
   `;
 }
 
-// STRIPE REDIRECT
+// 🔥 STRIPE
 function checkout() {
   window.location.href = "https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
 
 </script>
-
-</body>
-</html>
