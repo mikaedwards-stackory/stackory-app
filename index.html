@@ -84,6 +84,7 @@
   <option value="OPS">OPERATIONS / EHS / SUPPLY</option>
   <option value="DATA">DATA</option>
   <option value="HEALTH">HEALTHCARE</option>
+  <option value="LEGAL">LEGAL</option>
 </select>
 
 <select id="cert">
@@ -120,81 +121,110 @@
 
 <script>
 
-// 🔥 CERT DATA (ACRONYM + FULL NAME)
+// 🔥 CERT DATA
 
 const certData = {
 
-  // ENGINEERING
-  FE:"Fundamentals of Engineering",
-  PE:"Professional Engineer",
-  EIT:"Engineer in Training",
-  LEED:"LEED Green Associate",
-  CEM:"Certified Energy Manager",
+ENGINEERING: ["FE","EIT","PE","LEED","CEM","PMP_ENG","CAPM_ENG","CSWA"],
+PM: ["CAPM","PMP","PRINCE2","PMI_ACP","CSM","PSM","SAFE","GOOGLE_PM"],
+DESIGN: ["GOOGLE_UX","ADOBE","FIGMA","NNG","UXQB","IDF","HCI","WEBFLOW"],
+MARKETING: ["HUBSPOT","GOOGLE_ADS","META","SEO","CONTENT","EMAIL","ANALYTICS","HOOTSUITE"],
+ESG: ["GRI","SASB","TCFD","CFA_ESG","LEED_AP","ISSB","CARBON","SUSTAIN"],
+OPS: ["SSGB","SSBB","CPIM","CSCP","CLTD","CSP","ASP","CIH","CHMM","OHST"],
+DATA: ["GOOGLE_DA","IBM_DA","TABLEAU","POWERBI","SQL","PYTHON","AWS_DA","AZURE_DA"],
+HEALTH: ["CNA","LPN","RN","BSN","NP","CCRN","PA","USMLE","CRA","PHARM"],
+LEGAL: ["JD","BAR","LLM","CIPP","CFE","CAMS","CRISC","CHC","CCEP"]
 
-  // PM
-  PMP:"Project Management Professional",
-  CAPM:"Certified Associate in Project Management",
-  PRINCE2:"PRINCE2 Certification",
-  PMI_ACP:"PMI Agile Certified Practitioner",
-
-  // DESIGN
-  GOOGLE_UX:"Google UX Design Certificate",
-  ADOBE:"Adobe Certified Professional",
-  FIGMA:"Figma Certification",
-
-  // MARKETING
-  HUBSPOT:"HubSpot Marketing Certification",
-  GOOGLE_ADS:"Google Ads Certification",
-  META:"Meta Marketing Certification",
-
-  // ESG
-  GRI:"Global Reporting Initiative",
-  SASB:"SASB Certification",
-  CFA_ESG:"CFA ESG Certificate",
-
-  // OPS / EHS / SUPPLY
-  SSGB:"Six Sigma Green Belt",
-  SSBB:"Six Sigma Black Belt",
-
-  // SUPPLY CHAIN
-  CPIM:"Certified Production Inventory Management",
-  CSCP:"Certified Supply Chain Professional",
-  CLTD:"Certified Logistics Transportation Distribution",
-
-  // EHS / SAFETY
-  CSP:"Certified Safety Professional",
-  ASP:"Associate Safety Professional",
-  CIH:"Certified Industrial Hygienist",
-  CHMM:"Certified Hazardous Materials Manager",
-  OHST:"Occupational Health Safety Technician",
-  SMS:"Safety Management Specialist",
-
-  // DATA
-  GOOGLE_DA:"Google Data Analytics",
-  TABLEAU:"Tableau Certification",
-  POWERBI:"Microsoft Power BI",
-
-  // HEALTH
-  CNA:"Certified Nursing Assistant",
-  RN:"Registered Nurse",
-  BSN:"Bachelor of Science in Nursing",
-  NP:"Nurse Practitioner",
-  CCRN:"Critical Care Registered Nurse",
-  CRA:"Clinical Research Associate",
-  USMLE:"United States Medical Licensing Exam"
 };
 
-// 🔥 DOMAIN MAP
+const certNames = {
 
-const certMap = {
-  ENGINEERING:["FE","EIT","PE","LEED","CEM"],
-  PM:["CAPM","PMP","PRINCE2","PMI_ACP"],
-  DESIGN:["GOOGLE_UX","ADOBE","FIGMA"],
-  MARKETING:["HUBSPOT","GOOGLE_ADS","META"],
-  ESG:["GRI","SASB","CFA_ESG"],
-  OPS:["SSGB","SSBB","CPIM","CSCP","CLTD","CSP","ASP","CIH","CHMM","OHST","SMS"],
-  DATA:["GOOGLE_DA","TABLEAU","POWERBI"],
-  HEALTH:["CNA","RN","BSN","NP","CCRN","CRA","USMLE"]
+FE:"Fundamentals of Engineering",
+EIT:"Engineer in Training",
+PE:"Professional Engineer",
+LEED:"LEED Green Associate",
+CEM:"Certified Energy Manager",
+PMP_ENG:"Project Management Professional",
+CAPM_ENG:"Associate Project Management",
+CSWA:"SolidWorks Associate",
+
+CAPM:"Associate PM",
+PMP:"Project Management Professional",
+PRINCE2:"PRINCE2",
+PMI_ACP:"Agile Practitioner",
+CSM:"Scrum Master",
+PSM:"Professional Scrum Master",
+SAFE:"SAFe Agilist",
+GOOGLE_PM:"Google PM",
+
+GOOGLE_UX:"Google UX",
+ADOBE:"Adobe",
+FIGMA:"Figma",
+NNG:"Nielsen Norman",
+UXQB:"UXQB",
+IDF:"Interaction Design",
+HCI:"Human Computer Interaction",
+WEBFLOW:"Webflow",
+
+HUBSPOT:"HubSpot",
+GOOGLE_ADS:"Google Ads",
+META:"Meta Marketing",
+SEO:"SEO",
+CONTENT:"Content Marketing",
+EMAIL:"Email Marketing",
+ANALYTICS:"Analytics",
+HOOTSUITE:"Hootsuite",
+
+GRI:"GRI",
+SASB:"SASB",
+TCFD:"TCFD",
+CFA_ESG:"CFA ESG",
+LEED_AP:"LEED AP",
+ISSB:"ISSB",
+CARBON:"Carbon",
+SUSTAIN:"Sustainability",
+
+SSGB:"Six Sigma Green Belt",
+SSBB:"Six Sigma Black Belt",
+CPIM:"Inventory Management",
+CSCP:"Supply Chain",
+CLTD:"Logistics",
+CSP:"Safety Professional",
+ASP:"Associate Safety",
+CIH:"Industrial Hygienist",
+CHMM:"Hazmat Manager",
+OHST:"Safety Technician",
+
+GOOGLE_DA:"Google Data",
+IBM_DA:"IBM Data",
+TABLEAU:"Tableau",
+POWERBI:"Power BI",
+SQL:"SQL",
+PYTHON:"Python",
+AWS_DA:"AWS Data",
+AZURE_DA:"Azure Data",
+
+CNA:"Nursing Assistant",
+LPN:"Practical Nurse",
+RN:"Registered Nurse",
+BSN:"Bachelor Nursing",
+NP:"Nurse Practitioner",
+CCRN:"Critical Care",
+PA:"Physician Assistant",
+USMLE:"Medical License",
+CRA:"Clinical Research",
+PHARM:"Pharmacy",
+
+JD:"Juris Doctor",
+BAR:"Bar License",
+LLM:"Master of Laws",
+CIPP:"Privacy",
+CFE:"Fraud Examiner",
+CAMS:"AML",
+CRISC:"Risk Control",
+CHC:"Healthcare Compliance",
+CCEP:"Ethics Compliance"
+
 };
 
 // 🔥 UPDATE CERTS
@@ -205,9 +235,9 @@ function updateCerts(){
 
   cert.innerHTML = `<option value="">CERTIFICATION</option>`;
 
-  certMap[domain]?.forEach(c=>{
+  certData[domain]?.forEach(c=>{
     cert.innerHTML += `<option value="${c}">
-      ${c} — ${certData[c]}
+      ${c} — ${certNames[c]}
     </option>`;
   });
 }
@@ -248,39 +278,27 @@ function generate(){
   output.style.display = "block";
 
   output.innerHTML = `
-
     <h3 style="color:gold;">STACKORY™ INDEX: ${score}</h3>
 
     <div class="progress-bar">
       <div class="progress-fill" style="width:${score}%"></div>
     </div>
 
-    <div class="artifact">
-      PATHWAY
-      <p>[${cert}]</p>
-    </div>
-
-    <div class="artifact">
-      STATE
-      <p>${score >=70 ? "ACCESS" : "RESTRICTED"}</p>
-    </div>
+    <div class="artifact">PATHWAY<br>[${cert}]</div>
+    <div class="artifact">STATE<br>${score>=70?"ACCESS":"RESTRICTED"}</div>
 
     <div class="locked">EXECUTION LOCKED</div>
-
-    <br>
 
     <button onclick="checkout()">UNLOCK</button>
   `;
 }
 
-// 🔥 STRIPE FIX (NO POPUP)
+// 🔥 CHECKOUT
 
 function checkout(){
 
   localStorage.setItem("stackory_user", JSON.stringify({
     cert: document.getElementById("cert").value,
-    exp: document.getElementById("experience").value,
-    hours: document.getElementById("hours").value,
     score: computeScore(
       document.getElementById("experience").value,
       parseInt(document.getElementById("hours").value)
