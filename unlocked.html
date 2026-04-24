@@ -48,13 +48,12 @@
     }
 
     .label { color:#aaa; }
-    .value { color:gold; font-weight:bold; }
+    .value { font-weight:bold; }
 
     .badge {
       text-align:center;
       margin:15px 0;
       font-weight:bold;
-      color:gold;
       font-size:18px;
     }
 
@@ -71,7 +70,6 @@
 
 <h2>STACKORY™ SYSTEM</h2>
 
-<!-- DOMAIN -->
 <select id="domain" onchange="updateCerts()">
   <option value="">Select Domain</option>
   <option value="ENGINEERING">Engineering</option>
@@ -84,12 +82,10 @@
   <option value="HEALTH">Healthcare</option>
 </select>
 
-<!-- CERT -->
 <select id="cert">
   <option value="">Select Certification</option>
 </select>
 
-<!-- EXPERIENCE -->
 <select id="experience">
   <option value="">Experience Level</option>
   <option value="0-1">0–1 years</option>
@@ -98,7 +94,6 @@
   <option value="7+">7+ years</option>
 </select>
 
-<!-- STUDY COMMITMENT -->
 <select id="hours">
   <option value="">Weekly Study Commitment</option>
   <option value="3">Light (2–4 hrs/week)</option>
@@ -113,7 +108,7 @@
 
 <script>
 
-// 🔥 CERT MAP
+// CERT MAP
 const certMap = {
   ENGINEERING: ["FE","PE","SSGB","SSBB","PMP"],
   PM: ["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
@@ -125,7 +120,7 @@ const certMap = {
   HEALTH: ["RN","NP","CCRN","CRA","USMLE"]
 };
 
-// 🔥 CERT NAMES
+// CERT NAMES
 const certNames = {
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
@@ -165,7 +160,7 @@ const certNames = {
   USMLE:"USMLE (MD Pathway)"
 };
 
-// 🔥 PREREQUISITE FLAGS (GATED)
+// PREREQ FLAGS
 const prereqFlags = {
   PE:true,
   NP:true,
@@ -174,7 +169,7 @@ const prereqFlags = {
   PMP:true
 };
 
-// 🔥 DROPDOWN
+// DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
@@ -188,7 +183,7 @@ function updateCerts(){
   });
 }
 
-// 🔥 STACKORY™ INDEX
+// INDEX
 function computeScore(exp,hours){
   let score=0;
 
@@ -204,15 +199,24 @@ function computeScore(exp,hours){
   return score;
 }
 
-// 🔥 STACKORY™ READINESS
+// READINESS
 function classify(score){
   if(score>=70) return "READY";
   if(score>=40) return "CONDITIONAL";
   return "NOT_READY";
 }
 
-// 🔥 MAIN ENGINE
+// ACCESS TIERS
+function getAccess(score){
+  if(score>=85) return {label:"EXECUTIVE ACCESS", color:"gold"};
+  if(score>=70) return {label:"BOARDROOM ACCESS", color:"#fff"};
+  if(score>=40) return {label:"CONDITIONAL ACCESS", color:"gray"};
+  return {label:"NO ACCESS", color:"red"};
+}
+
+// MAIN
 function generate(){
+
   const cert = document.getElementById("cert").value;
   const exp = document.getElementById("experience").value;
   const hours = parseInt(document.getElementById("hours").value);
@@ -224,6 +228,7 @@ function generate(){
 
   const index = computeScore(exp,hours);
   let readiness = classify(index);
+  const access = getAccess(index);
 
   if(prereqFlags[cert] && exp==="0-1"){
     readiness = "CONDITIONAL";
@@ -245,6 +250,13 @@ function generate(){
       <div class="value">${certNames[cert]}</div>
     </div>
 
+    <div class="row">
+      <div class="label">Boardroom Access™</div>
+      <div class="value" style="color:${access.color}">
+        ${access.label}
+      </div>
+    </div>
+
     ${prereqFlags[cert] ? `
       <div class="row">
         <div class="label">Prerequisite</div>
@@ -253,7 +265,7 @@ function generate(){
     ` : ""}
 
     <div class="locked">
-      Execution Tracks™ and Boardroom Access™ unlock after activation
+      Execution Tracks™ unlock based on your access level
     </div>
 
     <br>
@@ -262,7 +274,7 @@ function generate(){
   `;
 }
 
-// 🔥 STRIPE + SAVE
+// STRIPE
 function checkout(){
   const data = {
     cert: document.getElementById("cert").value,
