@@ -4,25 +4,65 @@
   <title>STACKORY™ ENGINE</title>
 
   <style>
-    body { background:#000; color:#fff; font-family:sans-serif; max-width:650px; margin:auto; padding:30px; }
+    body {
+      background:#000;
+      color:#fff;
+      font-family:-apple-system, sans-serif;
+      max-width:650px;
+      margin:auto;
+      padding:30px;
+    }
+
     h2 { text-align:center; color:gold; }
 
     select, input, button {
-      width:100%; padding:14px; margin-bottom:15px;
-      border-radius:8px; border:none; background:#111; color:#fff;
+      width:100%;
+      padding:14px;
+      margin-bottom:15px;
+      border-radius:8px;
+      border:none;
+      background:#111;
+      color:#fff;
     }
 
-    button { background:gold; color:black; font-weight:bold; cursor:pointer; }
+    button {
+      background:gold;
+      color:black;
+      font-weight:bold;
+      cursor:pointer;
+    }
 
     #output {
-      display:none; margin-top:25px;
-      border:2px solid gold; padding:20px; border-radius:12px;
+      display:none;
+      margin-top:25px;
+      border:2px solid gold;
+      padding:20px;
+      border-radius:12px;
     }
 
-    .row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222; }
+    .row {
+      display:flex;
+      justify-content:space-between;
+      padding:10px 0;
+      border-bottom:1px solid #222;
+    }
+
     .label { color:#aaa; }
     .value { color:gold; font-weight:bold; }
-    .badge { text-align:center; margin:15px 0; color:gold; font-weight:bold; }
+
+    .badge {
+      text-align:center;
+      margin:15px 0;
+      font-weight:bold;
+      color:gold;
+    }
+
+    .warning {
+      color:#ff4d4d;
+      text-align:center;
+      margin-top:10px;
+      font-weight:bold;
+    }
   </style>
 </head>
 
@@ -46,14 +86,14 @@
   <option value="">Select Certification</option>
 </select>
 
-<input type="number" id="hours" placeholder="Hours per week">
+<input type="number" id="hours" placeholder="Hours per week commitment">
 
 <select id="experience">
-  <option value="">Experience</option>
-  <option value="0-1">0–1</option>
-  <option value="2-3">2–3</option>
-  <option value="4-6">4–6</option>
-  <option value="7+">7+</option>
+  <option value="">Experience Level</option>
+  <option value="0-1">0–1 years</option>
+  <option value="2-3">2–3 years</option>
+  <option value="4-6">4–6 years</option>
+  <option value="7+">7+ years</option>
 </select>
 
 <button onclick="generate()">GENERATE POSITION</button>
@@ -62,6 +102,7 @@
 
 <script>
 
+// 🔥 CERT MAP (TOP 5 PER DOMAIN)
 const certMap = {
   ENGINEERING: ["FE","PE","SSGB","SSBB","PMP"],
   PM: ["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
@@ -73,6 +114,7 @@ const certMap = {
   HEALTH: ["RN","NP","CCRN","CRA","USMLE"]
 };
 
+// 🔥 CERT NAMES
 const certNames = {
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
@@ -86,7 +128,7 @@ const certNames = {
   PRINCE2:"PRINCE2",
 
   GOOGLE_UX:"Google UX Design",
-  ADOBE:"Adobe Certified",
+  ADOBE:"Adobe Certified Professional",
   UXQB:"UXQB Certification",
   NNG:"Nielsen Norman UX",
   IDF:"Interaction Design Foundation",
@@ -97,8 +139,8 @@ const certNames = {
   GOOGLE_ADS:"Google Ads",
   HOOTSUITE:"Hootsuite",
 
-  GRI:"GRI",
-  CFA_ESG:"CFA ESG",
+  GRI:"GRI Certification",
+  CFA_ESG:"CFA ESG Certificate",
   SASB:"SASB",
   TCFD:"TCFD",
   LEED:"LEED Green Associate",
@@ -119,20 +161,33 @@ const certNames = {
   USMLE:"USMLE (MD Pathway)"
 };
 
-function updateCerts(){
-  const domain = domainSelect.value;
-  cert.innerHTML = `<option>Select Certification</option>`;
+// 🔥 PREREQUISITES
+const prerequisites = {
+  PE:"Requires FE certification first",
+  NP:"Requires RN license first",
+  CCRN:"Requires RN + clinical experience",
+  USMLE:"Requires medical school pathway",
+  PMP:"Requires experience + training hours"
+};
 
-  certMap[domain]?.forEach(c=>{
+// 🔥 DROPDOWN LOGIC
+function updateCerts(){
+  const domain = document.getElementById("domain").value;
+  const cert = document.getElementById("cert");
+
+  cert.innerHTML = `<option value="">Select Certification</option>`;
+
+  if(!certMap[domain]) return;
+
+  certMap[domain].forEach(c=>{
     cert.innerHTML += `<option value="${c}">${certNames[c]}</option>`;
   });
 }
 
-const domainSelect = document.getElementById("domain");
-const cert = document.getElementById("cert");
-
+// 🔥 SCORE
 function computeScore(exp,hours){
   let score=0;
+
   if(exp==="0-1") score+=10;
   if(exp==="2-3") score+=20;
   if(exp==="4-6") score+=30;
@@ -145,33 +200,74 @@ function computeScore(exp,hours){
   return score;
 }
 
+// 🔥 ELIGIBILITY RULES
+function checkEligibility(cert, exp){
+  if(cert==="PE" && exp==="0-1") return false;
+  if(cert==="NP" && exp==="0-1") return false;
+  if(cert==="USMLE" && exp==="0-1") return false;
+  return true;
+}
+
+// 🔥 STATUS
 function classify(score){
   if(score>=70) return "READY";
   if(score>=40) return "CONDITIONAL";
   return "NOT_READY";
 }
 
+// 🔥 MAIN OUTPUT
 function generate(){
-  const c=cert.value;
-  const exp=experience.value;
-  const hrs=parseInt(hours.value);
+  const cert = document.getElementById("cert").value;
+  const exp = document.getElementById("experience").value;
+  const hours = parseInt(document.getElementById("hours").value);
 
-  if(!c||!exp||!hrs){alert("Complete fields");return;}
+  if(!cert || !exp || !hours){
+    alert("Complete all fields");
+    return;
+  }
 
-  const score=computeScore(exp,hrs);
-  const status=classify(score);
+  const score = computeScore(exp,hours);
+  const eligible = checkEligibility(cert,exp);
+  const status = eligible ? classify(score) : "NOT_ELIGIBLE";
 
+  const output = document.getElementById("output");
   output.style.display="block";
-  output.innerHTML=`
+
+  output.innerHTML = `
     <div class="badge">${status}</div>
-    <div class="row"><div>Score</div><div>${score}</div></div>
-    <div class="row"><div>Certification</div><div>${certNames[c]}</div></div>
+
+    <div class="row">
+      <div class="label">Readiness Index</div>
+      <div class="value">${score}</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Certification</div>
+      <div class="value">${certNames[cert]}</div>
+    </div>
+
+    ${prerequisites[cert] ? `
+      <div class="row">
+        <div class="label">Requirement</div>
+        <div class="value" style="color:#ff4d4d;">
+          ${prerequisites[cert]}
+        </div>
+      </div>
+    ` : ""}
+
+    ${!eligible ? `
+      <div class="warning">
+        Not eligible based on current experience level
+      </div>
+    ` : ""}
 
     <br>
+
     <button onclick="checkout()">UNLOCK EXECUTION</button>
   `;
 }
 
+// 🔥 STRIPE
 function checkout(){
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
