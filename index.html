@@ -1,6 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>STACKORY™ ENGINE</title>
+
+  <style>
+    body {
+      background:#000;
+      color:#fff;
+      font-family:-apple-system, sans-serif;
+      max-width:650px;
+      margin:auto;
+      padding:30px;
+    }
+
+    h2 {
+      text-align:center;
+      color:gold;
+    }
+
+    select, input, button {
+      width:100%;
+      padding:14px;
+      margin-bottom:15px;
+      border-radius:8px;
+      border:none;
+      background:#111;
+      color:#fff;
+    }
+
+    button {
+      background:gold;
+      color:black;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    #output {
+      display:none;
+      margin-top:25px;
+      border:2px solid gold;
+      padding:20px;
+      border-radius:12px;
+    }
+
+    .row {
+      display:flex;
+      justify-content:space-between;
+      padding:10px 0;
+      border-bottom:1px solid #222;
+    }
+
+    .label { color:#aaa; }
+    .value { color:gold; font-weight:bold; }
+
+    .badge {
+      text-align:center;
+      margin:15px 0;
+      font-weight:bold;
+      color:gold;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>STACKORY™ ENGINE</h2>
+
+<!-- DOMAIN -->
+<select id="domain" onchange="updateCerts()">
+  <option value="">Select Domain</option>
+  <option value="PM">Project Management</option>
+  <option value="UX">UX / Product Design</option>
+  <option value="DESIGN">Design / Creative</option>
+  <option value="MARKETING">Marketing</option>
+  <option value="ESG">Sustainability / ESG</option>
+  <option value="OPS">Operations</option>
+  <option value="DATA">Data & Analytics</option>
+</select>
+
+<!-- CERTIFICATIONS -->
+<select id="cert">
+  <option value="">Select Certification</option>
+</select>
+
+<!-- INPUTS -->
+<input type="number" id="hours" placeholder="Hours per week commitment">
+
+<select id="experience">
+  <option value="">Experience Level</option>
+  <option value="0-1">0–1 years</option>
+  <option value="2-3">2–3 years</option>
+  <option value="4-6">4–6 years</option>
+  <option value="7+">7+ years</option>
+</select>
+
+<button onclick="generate()">GENERATE POSITION</button>
+
+<div id="output"></div>
+
 <script>
 
-// 🔥 DOMAIN → CERT MAP (UPDATED)
+// 🔥 DOMAIN → CERT MAP
 const certMap = {
   PM: ["PMP", "GOOGLE_PM"],
   UX: ["GOOGLE_UX"],
@@ -11,7 +111,7 @@ const certMap = {
   DATA: []
 };
 
-// 🔥 CERT DISPLAY NAMES (IMPORTANT FOR UX)
+// 🔥 CERT DISPLAY NAMES
 const certNames = {
   PMP: "PMP",
   GOOGLE_PM: "Google Project Management",
@@ -23,12 +123,11 @@ const certNames = {
   LSS: "Lean Six Sigma"
 };
 
-// 🔥 UPDATE CERT DROPDOWN (FIXED + SAFE)
+// 🔥 UPDATE CERT DROPDOWN
 function updateCerts() {
   const domain = document.getElementById("domain").value;
   const certSelect = document.getElementById("cert");
 
-  // Reset dropdown
   certSelect.innerHTML = `<option value="">Select Certification</option>`;
 
   if (!domain || !certMap[domain] || certMap[domain].length === 0) {
@@ -107,3 +206,6 @@ function checkout() {
 }
 
 </script>
+
+</body>
+</html>
