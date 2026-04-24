@@ -3,7 +3,6 @@
 <head>
   <title>STACKORY™ SYSTEM</title>
 
-  <!-- SNAPSHOT LIBRARY -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
   <style>
@@ -69,12 +68,21 @@
       background:#000;
     }
 
+    .artifact {
+      margin-top:20px;
+      padding:20px;
+      border:2px solid gold;
+      border-radius:12px;
+      background:#0a0a0a;
+    }
+
     .locked {
       text-align:center;
       color:#666;
       margin-top:15px;
       font-size:13px;
     }
+
   </style>
 </head>
 
@@ -120,34 +128,28 @@
 
 <script>
 
-// CERT MAP
 const certMap = {
-  ENGINEERING:["FE","PE","SSGB","SSBB","PMP"],
-  PM:["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
+  ENGINEERING:["FE","PE","PMP"],
+  PM:["PMP","CAPM"],
   DESIGN:["GOOGLE_UX","ADOBE"],
-  MARKETING:["HUBSPOT","GOOGLE_DM"],
-  ESG:["GRI","CFA_ESG"],
-  OPS:["SSGB","SSBB"],
-  DATA:["GOOGLE_DA","POWERBI"],
-  HEALTH:["RN","NP","CCRN","USMLE"]
+  MARKETING:["HUBSPOT"],
+  ESG:["GRI"],
+  OPS:["SSGB"],
+  DATA:["GOOGLE_DA"],
+  HEALTH:["RN","NP"]
 };
 
-// CERT NAMES
 const certNames = {
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
   PMP:"PMP",
-  GOOGLE_PM:"Google Project Management",
-  GOOGLE_UX:"Google UX Design",
-  ADOBE:"Adobe Certified Professional",
+  GOOGLE_UX:"Google UX",
+  ADOBE:"Adobe",
   HUBSPOT:"HubSpot",
   RN:"Registered Nurse",
-  NP:"Nurse Practitioner",
-  CCRN:"Critical Care RN",
-  USMLE:"USMLE"
+  NP:"Nurse Practitioner"
 };
 
-// DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
@@ -158,7 +160,6 @@ function updateCerts(){
   });
 }
 
-// INDEX
 function computeScore(exp,hours){
   let score=0;
 
@@ -174,22 +175,19 @@ function computeScore(exp,hours){
   return score;
 }
 
-// READINESS
 function classify(score){
   if(score>=70) return "READY";
   if(score>=40) return "CONDITIONAL";
   return "NOT_READY";
 }
 
-// ACCESS
 function getAccess(score){
-  if(score>=85) return {label:"EXECUTIVE ACCESS", color:"gold"};
-  if(score>=70) return {label:"BOARDROOM ACCESS", color:"#fff"};
-  if(score>=40) return {label:"CONDITIONAL ACCESS", color:"gray"};
+  if(score>=85) return {label:"EXECUTIVE", color:"gold"};
+  if(score>=70) return {label:"BOARDROOM", color:"#fff"};
+  if(score>=40) return {label:"CONDITIONAL", color:"gray"};
   return {label:"NO ACCESS", color:"red"};
 }
 
-// MAIN
 function generate(){
 
   const cert = document.getElementById("cert").value;
@@ -201,9 +199,9 @@ function generate(){
     return;
   }
 
-  const index = computeScore(exp,hours);
-  const readiness = classify(index);
-  const access = getAccess(index);
+  const score = computeScore(exp,hours);
+  const readiness = classify(score);
+  const access = getAccess(score);
 
   const output = document.getElementById("output");
   output.style.display="block";
@@ -213,7 +211,7 @@ function generate(){
 
     <div class="row">
       <div class="label">Stackory™ Index</div>
-      <div class="value">${index}</div>
+      <div class="value">${score}</div>
     </div>
 
     <div class="row">
@@ -231,24 +229,32 @@ function generate(){
     <!-- SNAPSHOT -->
     <div id="snapshot" class="snapshot">
       <h3 style="color:gold;">STACKORY™ SNAPSHOT</h3>
-      <p>Index: ${index}</p>
+      <p>Index: ${score}</p>
       <p>Access: ${access.label}</p>
       <p>Position: ${certNames[cert]}</p>
     </div>
 
     <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
 
-    <div class="locked">
-      Execution Tracks™ unlock after activation
+    <!-- ARTIFACT PREVIEW -->
+    <div class="artifact">
+      <h3 style="color:gold;">CREDENTIAL MATRIX (PREVIEW)</h3>
+      <p>✔ Degree: Detected</p>
+      <p>✔ Certifications: Detected</p>
+      <p>✖ Licensure: Missing</p>
+      <p>✔ Experience: ${exp}</p>
+
+      <div class="locked">
+        Full artifact locked 🔒
+      </div>
     </div>
 
     <br>
 
-    <button onclick="checkout()">UNLOCK EXECUTION</button>
+    <button onclick="checkout()">UNLOCK FULL ARTIFACT</button>
   `;
 }
 
-// DOWNLOAD SNAPSHOT
 function downloadSnapshot(){
   html2canvas(document.getElementById("snapshot")).then(canvas=>{
     const link = document.createElement("a");
@@ -258,7 +264,6 @@ function downloadSnapshot(){
   });
 }
 
-// STRIPE
 function checkout(){
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
