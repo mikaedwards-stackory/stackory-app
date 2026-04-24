@@ -3,6 +3,8 @@
 <head>
   <title>STACKORY™ SYSTEM</title>
 
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
   <style>
     body {
       background:#000;
@@ -41,7 +43,7 @@
     }
 
     .artifact {
-      margin-top:20px;
+      margin-top:15px;
       padding:15px;
       border:2px solid gold;
       border-radius:12px;
@@ -52,7 +54,22 @@
       color:#666;
       font-size:12px;
       text-align:center;
+      margin-top:10px;
     }
+
+    .progress-bar {
+      width:100%;
+      background:#111;
+      border-radius:10px;
+      overflow:hidden;
+      margin-top:10px;
+    }
+
+    .progress-fill {
+      height:10px;
+      background:gold;
+    }
+
   </style>
 </head>
 
@@ -62,9 +79,14 @@
 
 <select id="domain" onchange="updateCerts()">
   <option value="">Select Domain</option>
-  <option value="HEALTH">Healthcare</option>
   <option value="ENGINEERING">Engineering</option>
   <option value="PM">Project Management</option>
+  <option value="DESIGN">Design / UX</option>
+  <option value="MARKETING">Marketing</option>
+  <option value="ESG">ESG / Sustainability</option>
+  <option value="OPS">Operations</option>
+  <option value="DATA">Data & Analytics</option>
+  <option value="HEALTH">Healthcare</option>
 </select>
 
 <select id="cert">
@@ -92,27 +114,66 @@
 
 <script>
 
-// 🔥 CERT DATA
+// 🔥 CERT DATA (ACRONYM + FULL NAME)
 const certData = {
+
+  // ENGINEERING
+  FE:"Fundamentals of Engineering",
+  PE:"Professional Engineer",
+
+  // PM
+  PMP:"Project Management Professional",
+  GOOGLE_PM:"Google Project Management Certificate",
+
+  // DESIGN
+  GOOGLE_UX:"Google UX Design Certificate",
+  ADOBE:"Adobe Certified Professional",
+
+  // MARKETING
+  HUBSPOT:"HubSpot Marketing Certification",
+
+  // ESG
+  GRI:"Global Reporting Initiative Certification",
+
+  // OPS
+  SSGB:"Six Sigma Green Belt",
+
+  // DATA
+  GOOGLE_DA:"Google Data Analytics Certificate",
+
+  // HEALTHCARE
   CNA:"Certified Nursing Assistant",
   LPN:"Licensed Practical Nurse",
   RN:"Registered Nurse",
   BSN:"Bachelor of Science in Nursing",
   NP:"Nurse Practitioner",
+  CCRN:"Critical Care Registered Nurse",
   CRA:"Clinical Research Associate",
-
-  FE:"Fundamentals of Engineering",
-  PE:"Professional Engineer",
-
-  PMP:"Project Management Professional",
-  GOOGLE_PM:"Google Project Management"
+  USMLE:"United States Medical Licensing Examination"
 };
 
-// 🔥 PATHWAYS (THIS IS THE ENGINE)
-const pathways = {
-  HEALTH:["CNA","LPN","RN","BSN","NP"],
+// 🔥 DOMAIN MAP (FULL)
+const certMap = {
   ENGINEERING:["FE","PE"],
-  PM:["GOOGLE_PM","PMP"]
+  PM:["GOOGLE_PM","PMP"],
+  DESIGN:["GOOGLE_UX","ADOBE"],
+  MARKETING:["HUBSPOT"],
+  ESG:["GRI"],
+  OPS:["SSGB"],
+  DATA:["GOOGLE_DA"],
+  HEALTH:["CNA","LPN","RN","BSN","NP","CCRN","CRA","USMLE"]
+};
+
+// 🔥 PATHWAYS (FULL SYSTEM)
+const pathways = {
+  ENGINEERING:["FE","PE"],
+  PM:["GOOGLE_PM","PMP"],
+  DESIGN:["GOOGLE_UX","ADOBE"],
+  MARKETING:["HUBSPOT"],
+  ESG:["GRI"],
+  OPS:["SSGB"],
+  DATA:["GOOGLE_DA"],
+  HEALTH:["CNA","LPN","RN","BSN","NP"]
 };
 
 // 🔥 DROPDOWN
@@ -122,7 +183,7 @@ function updateCerts(){
 
   cert.innerHTML = `<option value="">Select Certification</option>`;
 
-  pathways[domain]?.forEach(c=>{
+  certMap[domain]?.forEach(c=>{
     cert.innerHTML += `<option value="${c}">
       ${c} — ${certData[c]}
     </option>`;
@@ -145,35 +206,32 @@ function computeScore(exp,hours){
   return score;
 }
 
-// 🔥 PATHWAY INTELLIGENCE
+// 🔥 PATHWAY ENGINE
 function getPathInsights(domain, cert, exp){
 
-  const path = pathways[domain];
+  const path = pathways[domain] || [];
   const index = path.indexOf(cert);
 
   let next = path[index + 1] || "Top Tier";
-  let prev = path[index - 1];
-
   let warning = "";
-  let insight = "";
+  let insight = "Aligned with pathway";
 
   // SKIP DETECTION
   if(index > 1 && exp === "0-1"){
-    warning = "⚠ You may be skipping foundational steps in this pathway";
+    warning = "⚠ Potential pathway skip detected";
   }
 
-  // TRANSITION LOGIC
-  if(cert === "CRA" && exp === "0-1"){
-    insight = "✓ Transition detected: Research support → Clinical research pathway";
-  }
-
+  // HEALTHCARE LOGIC
   if(cert === "NP" && exp === "0-1"){
     warning = "⚠ RN/BSN typically required before NP";
   }
 
+  if(cert === "CRA" && exp === "0-1"){
+    insight = "✓ Transition: Research support → Clinical Research pathway";
+  }
+
   return {
     next,
-    prev,
     warning,
     insight,
     path: path.join(" → ")
@@ -204,11 +262,15 @@ function generate(){
     <h3 style="color:gold;">STACKORY™ POSITION</h3>
 
     <p><strong>Score:</strong> ${score}</p>
-    <p><strong>Selected:</strong> ${cert} — ${certData[cert]}</p>
+    <p><strong>Certification:</strong> ${cert} — ${certData[cert]}</p>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width:${score}%"></div>
+    </div>
 
     <div class="artifact">
       <h4 style="color:gold;">PATHWAY</h4>
-      <p>${insights.path}</p>
+      <p>${insights.path || "Custom / Non-linear pathway"}</p>
     </div>
 
     <div class="artifact">
@@ -218,7 +280,7 @@ function generate(){
 
     <div class="artifact">
       <h4 style="color:gold;">POSITIONING SIGNAL</h4>
-      <p>${insights.insight || "Aligned with pathway"}</p>
+      <p>${insights.insight}</p>
       <p style="color:red;">${insights.warning}</p>
     </div>
 
@@ -234,6 +296,19 @@ function generate(){
 
 // 🔥 CHECKOUT
 function checkout(){
+
+  const data = {
+    cert: document.getElementById("cert").value,
+    exp: document.getElementById("experience").value,
+    hours: document.getElementById("hours").value,
+    score: computeScore(
+      document.getElementById("experience").value,
+      parseInt(document.getElementById("hours").value)
+    )
+  };
+
+  localStorage.setItem("stackory_user", JSON.stringify(data));
+
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
 
