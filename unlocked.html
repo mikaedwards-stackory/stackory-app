@@ -13,13 +13,16 @@
       padding:30px;
     }
 
-    h1 { color:gold; text-align:center; }
+    h1 {
+      color:gold;
+      text-align:center;
+      margin-bottom:30px;
+    }
 
     .matrix {
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:20px;
-      margin-top:20px;
     }
 
     .panel {
@@ -34,9 +37,23 @@
       text-align:center;
     }
 
-    .title { color:gold; margin-bottom:10px; }
+    .title {
+      color:gold;
+      margin-bottom:10px;
+      font-size:12px;
+      letter-spacing:1px;
+    }
 
-    .score { font-size:48px; color:gold; }
+    .score {
+      font-size:48px;
+      color:gold;
+      margin-bottom:10px;
+    }
+
+    .path {
+      font-size:16px;
+      line-height:1.6;
+    }
 
   </style>
 </head>
@@ -49,24 +66,129 @@
 
 <script>
 
+// 🔥 LOAD USER DATA
 const user = JSON.parse(localStorage.getItem("stackory_user"));
 
 if(!user){
   document.body.innerHTML = "ACCESS DENIED";
 }
 
-// PATHWAY
+// 🔥 PATHWAYS (MATCH DOMAINS)
+
 const pathways = {
-  HEALTH:["RN","NP"],
-  ENGINEERING:["FE","PE"],
-  PM:["PMP"]
+
+  ENGINEERING:["FE","EIT","PE","CEM"],
+  PM:["CAPM","PMP","PMI_ACP"],
+  DESIGN:["GOOGLE_UX","ADOBE"],
+  MARKETING:["HUBSPOT","GOOGLE_ADS","META"],
+  ESG:["GRI","SASB","CFA_ESG"],
+
+  // 🔥 OPS WITH EHS + SUPPLY
+  OPS:[
+    "SSGB","SSBB",
+    "CPIM","CSCP","CLTD",
+    "ASP","CSP","CIH","CHMM"
+  ],
+
+  DATA:["GOOGLE_DA","TABLEAU","POWERBI"],
+
+  HEALTH:[
+    "CNA","RN","BSN","NP","CCRN"
+  ]
+
 };
 
-let domain = Object.keys(pathways).find(d => pathways[d].includes(user.cert));
+// 🔥 CERT NAME MAP
+
+const certNames = {
+  FE:"Fundamentals of Engineering",
+  EIT:"Engineer in Training",
+  PE:"Professional Engineer",
+  CEM:"Certified Energy Manager",
+
+  CAPM:"Certified Associate in Project Management",
+  PMP:"Project Management Professional",
+  PMI_ACP:"PMI Agile Certified Practitioner",
+
+  GOOGLE_UX:"Google UX Design",
+  ADOBE:"Adobe Certified Professional",
+
+  HUBSPOT:"HubSpot Marketing",
+  GOOGLE_ADS:"Google Ads",
+  META:"Meta Marketing",
+
+  GRI:"Global Reporting Initiative",
+  SASB:"SASB Certification",
+  CFA_ESG:"CFA ESG Certificate",
+
+  SSGB:"Six Sigma Green Belt",
+  SSBB:"Six Sigma Black Belt",
+  CPIM:"Production Inventory Management",
+  CSCP:"Supply Chain Professional",
+  CLTD:"Logistics Transportation Distribution",
+
+  ASP:"Associate Safety Professional",
+  CSP:"Certified Safety Professional",
+  CIH:"Certified Industrial Hygienist",
+  CHMM:"Hazardous Materials Manager",
+
+  GOOGLE_DA:"Google Data Analytics",
+  TABLEAU:"Tableau",
+  POWERBI:"Power BI",
+
+  CNA:"Certified Nursing Assistant",
+  RN:"Registered Nurse",
+  BSN:"Bachelor of Science Nursing",
+  NP:"Nurse Practitioner",
+  CCRN:"Critical Care Nurse"
+};
+
+// 🔥 DETECT DOMAIN
+
+let domain = Object.keys(pathways).find(d =>
+  pathways[d].includes(user.cert)
+);
+
 let path = pathways[domain] || [];
 let index = path.indexOf(user.cert);
 
+// 🔥 NEXT MOVE
+
 let next = path[index + 1] || "TOP";
+
+// 🔥 RISK
+
+let risk = user.score < 40 ? "HIGH" :
+           user.score < 70 ? "MODERATE" :
+           "LOW";
+
+// 🔥 MARKET SIGNAL
+
+let signal = user.score >= 70 ? "STRONG" :
+             user.score >= 40 ? "DEVELOPING" :
+             "WEAK";
+
+// 🔥 BOARDROOM ACCESS
+
+let access = user.score >= 80 ? "EXECUTIVE" :
+             user.score >= 60 ? "BOARDROOM" :
+             user.score >= 40 ? "CONDITIONAL" :
+             "DENIED";
+
+// 🔥 RANK
+
+let rank = user.score >= 80 ? "TOP 10%" :
+           user.score >= 60 ? "TOP 25%" :
+           user.score >= 40 ? "TOP 50%" :
+           "BOTTOM 50%";
+
+// 🔥 BUILD PATH DISPLAY
+
+let pathDisplay = path.map(p =>
+  p === user.cert ? `[${p}]` : p
+).join(" → ");
+
+// 🔥 RENDER
 
 document.getElementById("report").innerHTML = `
 
@@ -74,12 +196,13 @@ document.getElementById("report").innerHTML = `
 
   <div class="panel full">
     <div class="score">${user.score}</div>
-    STACKORY™ INDEX
+    STACKORY™ INDEX<br>
+    ${rank}
   </div>
 
   <div class="panel">
     <div class="title">PATHWAY</div>
-    ${path.map(p => p === user.cert ? `[${p}]` : p).join(" → ")}
+    <div class="path">${pathDisplay}</div>
   </div>
 
   <div class="panel">
@@ -89,17 +212,22 @@ document.getElementById("report").innerHTML = `
 
   <div class="panel">
     <div class="title">POSITION RISK</div>
-    ${user.score < 50 ? "HIGH" : "LOW"}
+    ${risk}
   </div>
 
   <div class="panel">
     <div class="title">MARKET SIGNAL</div>
-    ${user.score >=70 ? "STRONG" : "WEAK"}
+    ${signal}
+  </div>
+
+  <div class="panel">
+    <div class="title">ACCESS LEVEL</div>
+    ${access}
   </div>
 
 </div>
-`;
 
+`;
 </script>
 
 </body>
