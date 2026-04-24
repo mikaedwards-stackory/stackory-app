@@ -8,7 +8,7 @@
       background:#000;
       color:#fff;
       font-family:-apple-system;
-      max-width:650px;
+      max-width:700px;
       margin:auto;
       padding:30px;
     }
@@ -48,13 +48,6 @@
       background:#0a0a0a;
     }
 
-    .locked {
-      color:#666;
-      text-align:center;
-      font-size:12px;
-      margin-top:10px;
-    }
-
     .progress-bar {
       width:100%;
       background:#111;
@@ -66,6 +59,13 @@
     .progress-fill {
       height:10px;
       background:gold;
+    }
+
+    .locked {
+      color:#666;
+      text-align:center;
+      font-size:12px;
+      margin-top:10px;
     }
   </style>
 </head>
@@ -81,7 +81,7 @@
   <option value="DESIGN">DESIGN</option>
   <option value="MARKETING">MARKETING</option>
   <option value="ESG">ESG</option>
-  <option value="OPS">OPERATIONS</option>
+  <option value="OPS">OPERATIONS / EHS / SUPPLY</option>
   <option value="DATA">DATA</option>
   <option value="HEALTH">HEALTHCARE</option>
 </select>
@@ -120,22 +120,84 @@
 
 <script>
 
-// CERT DISPLAY
+// 🔥 CERT DATA (ACRONYM + FULL NAME)
+
 const certData = {
-  PMP:"Project Management Professional",
+
+  // ENGINEERING
   FE:"Fundamentals of Engineering",
   PE:"Professional Engineer",
+  EIT:"Engineer in Training",
+  LEED:"LEED Green Associate",
+  CEM:"Certified Energy Manager",
+
+  // PM
+  PMP:"Project Management Professional",
+  CAPM:"Certified Associate in Project Management",
+  PRINCE2:"PRINCE2 Certification",
+  PMI_ACP:"PMI Agile Certified Practitioner",
+
+  // DESIGN
+  GOOGLE_UX:"Google UX Design Certificate",
+  ADOBE:"Adobe Certified Professional",
+  FIGMA:"Figma Certification",
+
+  // MARKETING
+  HUBSPOT:"HubSpot Marketing Certification",
+  GOOGLE_ADS:"Google Ads Certification",
+  META:"Meta Marketing Certification",
+
+  // ESG
+  GRI:"Global Reporting Initiative",
+  SASB:"SASB Certification",
+  CFA_ESG:"CFA ESG Certificate",
+
+  // OPS / EHS / SUPPLY
+  SSGB:"Six Sigma Green Belt",
+  SSBB:"Six Sigma Black Belt",
+
+  // SUPPLY CHAIN
+  CPIM:"Certified Production Inventory Management",
+  CSCP:"Certified Supply Chain Professional",
+  CLTD:"Certified Logistics Transportation Distribution",
+
+  // EHS / SAFETY
+  CSP:"Certified Safety Professional",
+  ASP:"Associate Safety Professional",
+  CIH:"Certified Industrial Hygienist",
+  CHMM:"Certified Hazardous Materials Manager",
+  OHST:"Occupational Health Safety Technician",
+  SMS:"Safety Management Specialist",
+
+  // DATA
+  GOOGLE_DA:"Google Data Analytics",
+  TABLEAU:"Tableau Certification",
+  POWERBI:"Microsoft Power BI",
+
+  // HEALTH
+  CNA:"Certified Nursing Assistant",
   RN:"Registered Nurse",
+  BSN:"Bachelor of Science in Nursing",
   NP:"Nurse Practitioner",
-  CRA:"Clinical Research Associate"
+  CCRN:"Critical Care Registered Nurse",
+  CRA:"Clinical Research Associate",
+  USMLE:"United States Medical Licensing Exam"
 };
 
-// DOMAIN MAP
+// 🔥 DOMAIN MAP
+
 const certMap = {
-  ENGINEERING:["FE","PE"],
-  PM:["PMP"],
-  HEALTH:["RN","NP","CRA"]
+  ENGINEERING:["FE","EIT","PE","LEED","CEM"],
+  PM:["CAPM","PMP","PRINCE2","PMI_ACP"],
+  DESIGN:["GOOGLE_UX","ADOBE","FIGMA"],
+  MARKETING:["HUBSPOT","GOOGLE_ADS","META"],
+  ESG:["GRI","SASB","CFA_ESG"],
+  OPS:["SSGB","SSBB","CPIM","CSCP","CLTD","CSP","ASP","CIH","CHMM","OHST","SMS"],
+  DATA:["GOOGLE_DA","TABLEAU","POWERBI"],
+  HEALTH:["CNA","RN","BSN","NP","CCRN","CRA","USMLE"]
 };
+
+// 🔥 UPDATE CERTS
 
 function updateCerts(){
   const domain = document.getElementById("domain").value;
@@ -150,7 +212,8 @@ function updateCerts(){
   });
 }
 
-// SCORE
+// 🔥 SCORE
+
 function computeScore(exp,hours){
   let score = 0;
 
@@ -166,7 +229,8 @@ function computeScore(exp,hours){
   return score;
 }
 
-// MAIN
+// 🔥 MAIN
+
 function generate(){
 
   const cert = document.getElementById("cert").value;
@@ -192,12 +256,12 @@ function generate(){
     </div>
 
     <div class="artifact">
-      <div class="title">PATHWAY</div>
+      PATHWAY
       <p>[${cert}]</p>
     </div>
 
     <div class="artifact">
-      <div class="title">STATE</div>
+      STATE
       <p>${score >=70 ? "ACCESS" : "RESTRICTED"}</p>
     </div>
 
@@ -208,6 +272,8 @@ function generate(){
     <button onclick="checkout()">UNLOCK</button>
   `;
 }
+
+// 🔥 STRIPE FIX (NO POPUP)
 
 function checkout(){
 
@@ -221,7 +287,7 @@ function checkout(){
     )
   }));
 
-  window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
+  window.location.href = "https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
 
 </script>
