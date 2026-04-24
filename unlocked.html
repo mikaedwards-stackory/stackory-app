@@ -13,10 +13,7 @@
       padding:30px;
     }
 
-    h1 {
-      color:gold;
-      text-align:center;
-    }
+    h1 { color:gold; text-align:center; }
 
     .matrix {
       display:grid;
@@ -37,15 +34,9 @@
       text-align:center;
     }
 
-    .title {
-      color:gold;
-      margin-bottom:10px;
-    }
+    .title { color:gold; margin-bottom:10px; }
 
-    .score {
-      font-size:48px;
-      color:gold;
-    }
+    .score { font-size:48px; color:gold; }
 
   </style>
 </head>
@@ -64,10 +55,11 @@ if(!user){
   document.body.innerHTML = "ACCESS DENIED";
 }
 
+// PATHWAY
 const pathways = {
-  HEALTH:["CNA","LPN","RN","BSN","NP"],
+  HEALTH:["RN","NP"],
   ENGINEERING:["FE","PE"],
-  PM:["GOOGLE_PM","PMP"]
+  PM:["PMP"]
 };
 
 let domain = Object.keys(pathways).find(d => pathways[d].includes(user.cert));
@@ -75,10 +67,6 @@ let path = pathways[domain] || [];
 let index = path.indexOf(user.cert);
 
 let next = path[index + 1] || "TOP";
-let risk = "LOW";
-
-if(index > 1 && user.exp === "0-1") risk = "HIGH";
-if(user.score < 50) risk = "ELEVATED";
 
 document.getElementById("report").innerHTML = `
 
@@ -101,7 +89,7 @@ document.getElementById("report").innerHTML = `
 
   <div class="panel">
     <div class="title">POSITION RISK</div>
-    ${risk}
+    ${user.score < 50 ? "HIGH" : "LOW"}
   </div>
 
   <div class="panel">
