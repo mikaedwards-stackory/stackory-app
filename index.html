@@ -15,7 +15,7 @@
 
     h2 { text-align:center; color:gold; }
 
-    select, input, button {
+    select, button {
       width:100%;
       padding:14px;
       margin-bottom:15px;
@@ -57,11 +57,11 @@
       color:gold;
     }
 
-    .warning {
-      color:#ff4d4d;
+    .locked {
       text-align:center;
-      margin-top:10px;
-      font-weight:bold;
+      color:#666;
+      margin-top:15px;
+      font-size:13px;
     }
   </style>
 </head>
@@ -70,6 +70,7 @@
 
 <h2>STACKORY™ ENGINE</h2>
 
+<!-- DOMAIN -->
 <select id="domain" onchange="updateCerts()">
   <option value="">Select Domain</option>
   <option value="ENGINEERING">Engineering</option>
@@ -82,18 +83,27 @@
   <option value="HEALTH">Healthcare</option>
 </select>
 
+<!-- CERT -->
 <select id="cert">
   <option value="">Select Certification</option>
 </select>
 
-<input type="number" id="hours" placeholder="Hours per week commitment">
-
+<!-- EXPERIENCE -->
 <select id="experience">
   <option value="">Experience Level</option>
   <option value="0-1">0–1 years</option>
   <option value="2-3">2–3 years</option>
   <option value="4-6">4–6 years</option>
   <option value="7+">7+ years</option>
+</select>
+
+<!-- STUDY COMMITMENT -->
+<select id="hours">
+  <option value="">Weekly Study Commitment</option>
+  <option value="3">Light (2–4 hrs/week)</option>
+  <option value="7">Moderate (5–8 hrs/week)</option>
+  <option value="12">Focused (9–12 hrs/week)</option>
+  <option value="15">Accelerated (12+ hrs/week)</option>
 </select>
 
 <button onclick="generate()">GENERATE POSITION</button>
@@ -121,39 +131,32 @@ const certNames = {
   SSGB:"Six Sigma Green Belt",
   SSBB:"Six Sigma Black Belt",
   PMP:"PMP",
-
   CAPM:"CAPM",
   PMI_ACP:"PMI-ACP",
   GOOGLE_PM:"Google Project Management",
   PRINCE2:"PRINCE2",
-
   GOOGLE_UX:"Google UX Design",
   ADOBE:"Adobe Certified Professional",
   UXQB:"UXQB Certification",
   NNG:"Nielsen Norman UX",
   IDF:"Interaction Design Foundation",
-
   HUBSPOT:"HubSpot",
   GOOGLE_DM:"Google Digital Marketing",
   META:"Meta Marketing",
   GOOGLE_ADS:"Google Ads",
   HOOTSUITE:"Hootsuite",
-
   GRI:"GRI Certification",
   CFA_ESG:"CFA ESG Certificate",
   SASB:"SASB",
   TCFD:"TCFD",
   LEED:"LEED Green Associate",
-
   CPIM:"APICS CPIM",
   CSCP:"APICS CSCP",
-
   GOOGLE_DA:"Google Data Analytics",
   IBM_DA:"IBM Data Analyst",
   POWERBI:"Microsoft Power BI",
   AWS_DA:"AWS Data Analytics",
   TABLEAU:"Tableau",
-
   RN:"Registered Nurse",
   NP:"Nurse Practitioner",
   CCRN:"Critical Care RN",
@@ -161,16 +164,16 @@ const certNames = {
   USMLE:"USMLE (MD Pathway)"
 };
 
-// 🔥 PREREQUISITES
-const prerequisites = {
-  PE:"Requires FE certification first",
-  NP:"Requires RN license first",
-  CCRN:"Requires RN + clinical experience",
-  USMLE:"Requires medical school pathway",
-  PMP:"Requires experience + training hours"
+// 🔥 PREREQUISITE DETECTION (HIDDEN LOGIC)
+const prereqFlags = {
+  PE:true,
+  NP:true,
+  CCRN:true,
+  USMLE:true,
+  PMP:true
 };
 
-// 🔥 DROPDOWN LOGIC
+// 🔥 DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
@@ -193,19 +196,11 @@ function computeScore(exp,hours){
   if(exp==="4-6") score+=30;
   if(exp==="7+") score+=40;
 
-  if(hours>=10) score+=30;
-  else if(hours>=5) score+=20;
+  if(hours>=12) score+=30;
+  else if(hours>=7) score+=20;
   else score+=10;
 
   return score;
-}
-
-// 🔥 ELIGIBILITY RULES
-function checkEligibility(cert, exp){
-  if(cert==="PE" && exp==="0-1") return false;
-  if(cert==="NP" && exp==="0-1") return false;
-  if(cert==="USMLE" && exp==="0-1") return false;
-  return true;
 }
 
 // 🔥 STATUS
@@ -215,7 +210,7 @@ function classify(score){
   return "NOT_READY";
 }
 
-// 🔥 MAIN OUTPUT
+// 🔥 MAIN ENGINE
 function generate(){
   const cert = document.getElementById("cert").value;
   const exp = document.getElementById("experience").value;
@@ -227,8 +222,12 @@ function generate(){
   }
 
   const score = computeScore(exp,hours);
-  const eligible = checkEligibility(cert,exp);
-  const status = eligible ? classify(score) : "NOT_ELIGIBLE";
+  let status = classify(score);
+
+  // 🔥 APPLY PREREQUISITE GATING
+  if(prereqFlags[cert] && exp === "0-1"){
+    status = "CONDITIONAL";
+  }
 
   const output = document.getElementById("output");
   output.style.display="block";
@@ -246,20 +245,16 @@ function generate(){
       <div class="value">${certNames[cert]}</div>
     </div>
 
-    ${prerequisites[cert] ? `
+    ${prereqFlags[cert] ? `
       <div class="row">
-        <div class="label">Requirement</div>
-        <div class="value" style="color:#ff4d4d;">
-          ${prerequisites[cert]}
-        </div>
+        <div class="label">Prerequisite</div>
+        <div class="value">Detected</div>
       </div>
     ` : ""}
 
-    ${!eligible ? `
-      <div class="warning">
-        Not eligible based on current experience level
-      </div>
-    ` : ""}
+    <div class="locked">
+      Detailed eligibility pathway and execution plan are available after activation
+    </div>
 
     <br>
 
