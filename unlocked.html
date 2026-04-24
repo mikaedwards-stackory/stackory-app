@@ -7,7 +7,7 @@
     body {
       background:#000;
       color:#fff;
-      font-family:-apple-system, sans-serif;
+      font-family:-apple-system;
       max-width:1000px;
       margin:auto;
       padding:30px;
@@ -48,23 +48,11 @@
       color:gold;
       font-size:14px;
       margin-bottom:10px;
-      letter-spacing:1px;
     }
-
-    .row {
-      display:flex;
-      justify-content:space-between;
-      padding:8px 0;
-      border-bottom:1px solid #222;
-    }
-
-    .label { color:#888; }
-    .value { font-weight:bold; }
 
     .score {
       text-align:center;
       font-size:48px;
-      margin:10px 0;
       color:gold;
     }
 
@@ -75,7 +63,6 @@
       margin-bottom:10px;
       font-weight:bold;
     }
-
   </style>
 </head>
 
@@ -100,16 +87,28 @@ if(!user){
   `;
 }
 
-// DATA
+// 🔥 DATA
 const certData = {
-  PMP:{name:"PMP", difficulty:8, salary:9, time:6},
-  FE:{name:"FE", difficulty:7, salary:8, time:6},
-  PE:{name:"PE", difficulty:9, salary:10, time:12},
-  RN:{name:"RN", difficulty:6, salary:7, time:6},
-  NP:{name:"NP", difficulty:9, salary:10, time:12},
-  USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
+  CNA:"Certified Nursing Assistant",
+  LPN:"Licensed Practical Nurse",
+  RN:"Registered Nurse",
+  BSN:"Bachelor of Science in Nursing",
+  NP:"Nurse Practitioner",
+  CRA:"Clinical Research Associate",
+  FE:"Fundamentals of Engineering",
+  PE:"Professional Engineer",
+  PMP:"Project Management Professional",
+  GOOGLE_PM:"Google Project Management"
 };
 
+// 🔥 PATHWAYS
+const pathways = {
+  HEALTH:["CNA","LPN","RN","BSN","NP"],
+  ENGINEERING:["FE","PE"],
+  PM:["GOOGLE_PM","PMP"]
+};
+
+// 🔥 ACCESS
 function getAccess(score){
   if(score>=85) return {label:"EXECUTIVE", color:"gold"};
   if(score>=70) return {label:"BOARDROOM", color:"#fff"};
@@ -117,42 +116,50 @@ function getAccess(score){
   return {label:"RESTRICTED", color:"red"};
 }
 
-// LOAD
+// LOAD USER
 const cert = user.cert;
 const exp = user.exp;
-const hours = parseInt(user.hours);
 const score = user.score;
 
-const data = certData[cert] || {name:cert, difficulty:5, salary:5, time:3};
+// FIND DOMAIN
+let domain = Object.keys(pathways).find(d => pathways[d].includes(cert));
+
+// PATH LOGIC
+const path = pathways[domain] || [];
+const index = path.indexOf(cert);
+
+// VISUAL PATH
+const visualPath = path.map(p => {
+  if(p === cert) return `[ ${p} ]`;
+  return p;
+}).join(" → ");
+
+// NEXT STEP
+const next = path[index + 1] || "Top Tier";
+
+const nextMessage = next === "Top Tier"
+  ? "You are at the highest level of this pathway"
+  : `${next} — required to unlock next-tier positioning`;
+
+// RISK
+let risk = "Low";
+if(index > 1 && exp === "0-1") risk = "High";
+if(score < 50) risk = "Elevated";
+
+// ROADMAP
+let roadmap = "";
+path.slice(index + 1).forEach((step, i) => {
+  roadmap += `<p>Step ${i+1}: ${step}</p>`;
+});
+
+// ACCESS
 const access = getAccess(score);
 
-// GAP LOGIC
-let gap = "No major gaps detected";
-
-if(data.difficulty >= 8 && exp === "0-1"){
-  gap = "Experience misalignment with certification level";
-}
-
-if(score < 50){
-  gap = "Low readiness score impacts positioning";
-}
-
-// TIMELINE
-let timeline = hours >= 12
-  ? `${data.time} months (accelerated)`
-  : `${data.time + 2}–${data.time + 6} months`;
-
-// AUTHORITY
-let authority = data.salary >= 9
-  ? "High Authority Signal"
-  : "Moderate Authority Signal";
-
-// RENDER MATRIX
+// RENDER
 document.getElementById("report").innerHTML = `
 
 <div class="matrix">
 
-  <!-- SCORE PANEL -->
   <div class="panel full">
     <div class="badge" style="
       background:${access.color === "gold" ? "gold" : "#222"};
@@ -168,51 +175,33 @@ document.getElementById("report").innerHTML = `
     </div>
   </div>
 
-  <!-- CREDENTIAL -->
   <div class="panel">
-    <div class="title">CREDENTIAL</div>
-
-    <div class="row">
-      <div class="label">Certification</div>
-      <div class="value">${data.name}</div>
-    </div>
-
-    <div class="row">
-      <div class="label">Experience</div>
-      <div class="value">${exp}</div>
-    </div>
+    <div class="title">CURRENT POSITION</div>
+    <p>${cert} — ${certData[cert]}</p>
   </div>
 
-  <!-- AUTHORITY -->
   <div class="panel">
-    <div class="title">AUTHORITY SIGNAL</div>
-
-    <div class="row">
-      <div class="label">Market Value</div>
-      <div class="value">${data.salary}/10</div>
-    </div>
-
-    <div class="row">
-      <div class="label">Signal</div>
-      <div class="value">${authority}</div>
-    </div>
+    <div class="title">PATHWAY</div>
+    <p>${visualPath}</p>
   </div>
 
-  <!-- GAPS -->
   <div class="panel">
-    <div class="title">GAPS DETECTED</div>
-    <div>${gap}</div>
+    <div class="title">NEXT REQUIRED MOVE</div>
+    <p>${nextMessage}</p>
   </div>
 
-  <!-- TIMELINE -->
   <div class="panel">
-    <div class="title">EXECUTION TIMELINE</div>
-    <div>${timeline}</div>
+    <div class="title">EXECUTION ROADMAP</div>
+    ${roadmap || "No further steps required"}
+  </div>
+
+  <div class="panel">
+    <div class="title">RISK LEVEL</div>
+    <p>${risk}</p>
   </div>
 
 </div>
 `;
-
 </script>
 
 </body>
