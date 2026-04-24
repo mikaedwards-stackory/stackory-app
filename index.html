@@ -42,15 +42,6 @@
       border-radius:12px;
     }
 
-    .row {
-      display:flex;
-      justify-content:space-between;
-      padding:10px 0;
-      border-bottom:1px solid #222;
-    }
-
-    .label { color:#aaa; }
-
     .progress-bar {
       width:100%;
       background:#111;
@@ -123,28 +114,34 @@
 
 <script>
 
-// 🔥 CERT DATA
+// 🔥 CERT DATA (ACRONYM + FULL NAME + LEVEL)
 const certData = {
-  PMP:{name:"PMP", difficulty:8, salary:9, time:6},
-  GOOGLE_PM:{name:"Google PM", difficulty:4, salary:5, time:2},
-  GOOGLE_UX:{name:"Google UX", difficulty:5, salary:6, time:3},
-  ADOBE:{name:"Adobe", difficulty:4, salary:5, time:2},
-  HUBSPOT:{name:"HubSpot", difficulty:3, salary:5, time:1},
-  GRI:{name:"GRI", difficulty:6, salary:7, time:4},
-  SSGB:{name:"Six Sigma Green Belt", difficulty:6, salary:7, time:4},
-  GOOGLE_DA:{name:"Google Data Analytics", difficulty:5, salary:7, time:3},
 
-  FE:{name:"FE", difficulty:7, salary:8, time:6},
-  PE:{name:"PE", difficulty:9, salary:10, time:12},
+  PMP:{name:"Project Management Professional", level:"Advanced"},
+  GOOGLE_PM:{name:"Google Project Management Certificate", level:"Entry"},
 
-  CNA:{name:"CNA", difficulty:3, salary:4, time:2},
-  LPN:{name:"LPN", difficulty:5, salary:6, time:4},
-  RN:{name:"RN", difficulty:6, salary:7, time:6},
-  BSN:{name:"BSN", difficulty:7, salary:8, time:8},
-  NP:{name:"NP", difficulty:9, salary:10, time:12},
-  CCRN:{name:"CCRN", difficulty:8, salary:9, time:6},
-  CRA:{name:"CRA", difficulty:7, salary:8, time:5},
-  USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
+  GOOGLE_UX:{name:"Google UX Design Certificate", level:"Entry"},
+  ADOBE:{name:"Adobe Certified Professional", level:"Entry"},
+
+  HUBSPOT:{name:"HubSpot Marketing Certification", level:"Entry"},
+
+  GRI:{name:"Global Reporting Initiative Certification", level:"Professional"},
+
+  SSGB:{name:"Six Sigma Green Belt", level:"Professional"},
+
+  GOOGLE_DA:{name:"Google Data Analytics Certificate", level:"Entry"},
+
+  FE:{name:"Fundamentals of Engineering", level:"Entry"},
+  PE:{name:"Professional Engineer", level:"Advanced"},
+
+  CNA:{name:"Certified Nursing Assistant", level:"Entry"},
+  LPN:{name:"Licensed Practical Nurse", level:"Entry"},
+  RN:{name:"Registered Nurse", level:"Professional"},
+  BSN:{name:"Bachelor of Science in Nursing", level:"Professional"},
+  NP:{name:"Nurse Practitioner", level:"Advanced"},
+  CCRN:{name:"Critical Care Registered Nurse", level:"Advanced"},
+  CRA:{name:"Clinical Research Associate", level:"Professional"},
+  USMLE:{name:"United States Medical Licensing Examination", level:"Executive"}
 };
 
 // 🔥 DOMAIN MAP
@@ -159,13 +156,17 @@ const certMap = {
   HEALTH:["CNA","LPN","RN","BSN","NP","CCRN","CRA","USMLE"]
 };
 
+// 🔥 UPDATE DROPDOWN (ACRONYM + NAME)
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
+
   cert.innerHTML = `<option value="">Select Certification</option>`;
 
   certMap[domain]?.forEach(c=>{
-    cert.innerHTML += `<option value="${c}">${certData[c].name}</option>`;
+    cert.innerHTML += `<option value="${c}">
+      ${c} — ${certData[c].name}
+    </option>`;
   });
 }
 
@@ -202,7 +203,25 @@ function getRank(score){
   return "Below Top 50%";
 }
 
-// 🔥 GENERATE
+// 🔥 CAREER INTELLIGENCE
+function getCareerSignal(cert, exp){
+
+  if(cert === "NP" && exp === "0-1"){
+    return "⚠ You are attempting to skip RN/BSN and move directly to Nurse Practitioner";
+  }
+
+  if(cert === "PE" && exp === "0-1"){
+    return "⚠ PE requires prior engineering fundamentals (FE recommended first)";
+  }
+
+  if(cert === "CRA" && exp === "0-1"){
+    return "✓ Transition detected: Entry-level research → Clinical Research Associate pathway";
+  }
+
+  return "✓ No major transition risks detected";
+}
+
+// 🔥 MAIN
 function generate(){
 
   const cert = document.getElementById("cert").value;
@@ -217,90 +236,41 @@ function generate(){
   const score = computeScore(exp,hours);
   const access = getAccess(score);
   const rank = getRank(score);
+  const signal = getCareerSignal(cert, exp);
 
   const output = document.getElementById("output");
   output.style.display="block";
 
   output.innerHTML = `
 
-  <div id="snapshot" style="
-    background:#000;
-    color:#fff;
-    padding:30px;
-    border-radius:16px;
-    border:2px solid gold;
-    text-align:center;
-  ">
+  <div style="text-align:center; border:2px solid gold; padding:25px; border-radius:12px;">
 
-    <div style="color:gold;">STACKORY™ SYSTEM</div>
-    <h2 style="color:gold;">SNAPSHOT REPORT</h2>
+    <h2 style="color:gold;">STACKORY™ SNAPSHOT</h2>
 
-    <div style="
-      padding:8px 18px;
-      border-radius:20px;
-      margin:10px;
-      font-weight:bold;
-      background:${access.color==="gold"?"gold":"#222"};
-      color:${access.color==="gold"?"#000":access.color};
-    ">
+    <div style="font-size:40px;">${score}</div>
+    <div>${rank}</div>
+
+    <div style="margin-top:10px;">
       ${access.label}
     </div>
 
-    <div style="font-size:40px;">${score}</div>
-    <div style="color:#aaa;">STACKORY™ INDEX</div>
-    <div>${rank}</div>
-
-    <div class="progress-bar">
-      <div class="progress-fill" style="width:${score}%"></div>
-    </div>
-
     <div style="margin-top:10px;">
-      POSITION: ${certData[cert].name}
+      ${cert} — ${certData[cert].name}
     </div>
 
-    <div style="margin-top:10px;">
-      ${score>=70 ? "Boardroom Eligible" : "Boardroom Restricted"}
-    </div>
-
-  </div>
-
-  <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
-
-  <div style="text-align:center; margin-top:15px; color:#aaa;">
-    Your current position limits access to higher-tier opportunities
   </div>
 
   <div class="artifact">
-    <h3 style="color:gold;">CREDENTIAL MATRIX (PREVIEW)</h3>
-    <p>✔ Complexity: ${certData[cert].difficulty}/10</p>
-    <p>✔ Market Value: ${certData[cert].salary}/10</p>
-    <p>✔ Time: ${certData[cert].time} months</p>
+    <h3 style="color:gold;">CAREER PATH SIGNAL</h3>
+    <p>${signal}</p>
 
     <div class="locked">Full artifact locked 🔒</div>
-  </div>
-
-  <div style="text-align:center; font-size:12px; color:#666;">
-    Full artifact reveals positioning gaps, execution path, and authority signals
   </div>
 
   <br>
 
   <button onclick="checkout()">UNLOCK FULL ARTIFACT</button>
   `;
-}
-
-// 🔥 SNAPSHOT
-function downloadSnapshot(){
-  const el = document.getElementById("snapshot");
-
-  setTimeout(()=>{
-    html2canvas(el,{backgroundColor:"#000",scale:2}).then(canvas=>{
-      const link = document.createElement("a");
-      link.download="stackory_snapshot.png";
-      link.href=canvas.toDataURL();
-      link.click();
-    });
-  },300);
 }
 
 // 🔥 CHECKOUT
