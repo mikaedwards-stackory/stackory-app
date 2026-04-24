@@ -13,15 +13,19 @@
       padding:30px;
     }
 
-    h2 {
-      text-align:center;
-      color:gold;
+    h2 { text-align:center; color:gold; }
+
+    .section {
+      border:2px solid gold;
+      padding:20px;
+      border-radius:12px;
+      margin-top:20px;
     }
 
     .row {
       display:flex;
       justify-content:space-between;
-      padding:12px 0;
+      padding:10px 0;
       border-bottom:1px solid #222;
     }
 
@@ -30,17 +34,10 @@
 
     .badge {
       text-align:center;
-      margin:20px 0;
+      margin-bottom:20px;
       color:gold;
       font-weight:bold;
       font-size:18px;
-    }
-
-    .section {
-      margin-top:25px;
-      border:2px solid gold;
-      padding:20px;
-      border-radius:12px;
     }
   </style>
 </head>
@@ -51,34 +48,115 @@
 
 <div class="badge">SYSTEM ACTIVATED</div>
 
+<div id="output"></div>
+
+<script>
+
+// 🔥 SAME CERT NAMES (keep consistent with index)
+const certNames = {
+  FE:"Fundamentals of Engineering",
+  PE:"Professional Engineer",
+  PMP:"PMP",
+  CAPM:"CAPM",
+  GOOGLE_PM:"Google Project Management",
+  GOOGLE_UX:"Google UX Design",
+  ADOBE:"Adobe Certified Professional",
+  HUBSPOT:"HubSpot",
+  RN:"Registered Nurse",
+  NP:"Nurse Practitioner",
+  CCRN:"Critical Care RN",
+  CRA:"Clinical Research Associate",
+  USMLE:"USMLE (MD Pathway)"
+};
+
+// 🔥 LOAD USER DATA
+const user = JSON.parse(localStorage.getItem("stackory_user") || "{}");
+
+const cert = user.cert || "UNKNOWN";
+const hours = parseInt(user.hours || 5);
+const exp = user.exp || "0-1";
+
+// 🔥 TIMELINE ENGINE (core value logic)
+function calculateTimeline(hours, exp){
+
+  if(hours >= 12){
+    return "Accelerated timeline: 4–6 weeks";
+  }
+
+  if(hours >= 7){
+    return "Standard timeline: 6–10 weeks";
+  }
+
+  return "Extended timeline: 10–16 weeks";
+}
+
+// 🔥 PHASE STRUCTURE (system-driven)
+function getPhases(cert){
+
+  return [
+    "Foundation Alignment",
+    "Applied Practice",
+    "Certification Readiness"
+  ];
+}
+
+// 🔥 EXECUTION ALLOCATION
+function getAllocation(hours){
+  if(hours >= 12){
+    return {study:50, practice:30, review:20};
+  }
+
+  if(hours >= 7){
+    return {study:40, practice:40, review:20};
+  }
+
+  return {study:30, practice:50, review:20};
+}
+
+// 🔥 BUILD OUTPUT
+const timeline = calculateTimeline(hours, exp);
+const phases = getPhases(cert);
+const allocation = getAllocation(hours);
+
+document.getElementById("output").innerHTML = `
+
 <div class="section">
-  <div class="row"><div class="label">Execution Status</div><div class="value">ACTIVE</div></div>
-  <div class="row"><div class="label">Structure</div><div class="value">3-Phase Model</div></div>
+  <div class="row"><div class="label">Certification</div><div class="value">${certNames[cert]}</div></div>
+  <div class="row"><div class="label">Execution Timeline</div><div class="value">${timeline}</div></div>
+  <div class="row"><div class="label">Weekly Commitment</div><div class="value">${hours} hrs</div></div>
+</div>
+
+<div class="section">
+  <h3>Execution Structure</h3>
+
+  ${phases.map((p,i)=>`
+    <div class="row">
+      <div class="label">Phase ${i+1}</div>
+      <div class="value">${p}</div>
+    </div>
+  `).join("")}
+
+</div>
+
+<div class="section">
+  <h3>Execution Allocation</h3>
+
+  <div class="row"><div class="label">Core Study</div><div class="value">${allocation.study}%</div></div>
+  <div class="row"><div class="label">Practice</div><div class="value">${allocation.practice}%</div></div>
+  <div class="row"><div class="label">Review</div><div class="value">${allocation.review}%</div></div>
+
+</div>
+
+<div class="section">
+  <h3>System Status</h3>
+
+  <div class="row"><div class="label">Execution Mode</div><div class="value">Active</div></div>
   <div class="row"><div class="label">Tracking Layer</div><div class="value">Enabled</div></div>
+
 </div>
 
-<div class="section">
-  <h3>Execution Phases</h3>
-
-  <div class="row"><div class="label">Phase 1</div><div class="value">Foundation Setup</div></div>
-  <div class="row"><div class="label">Phase 2</div><div class="value">Applied Practice</div></div>
-  <div class="row"><div class="label">Phase 3</div><div class="value">Certification Readiness</div></div>
-</div>
-
-<div class="section">
-  <h3>Execution Schedule</h3>
-
-  <div class="row"><div class="label">Week 1–2</div><div class="value">Core Concepts</div></div>
-  <div class="row"><div class="label">Week 3–6</div><div class="value">Guided Practice</div></div>
-  <div class="row"><div class="label">Final Phase</div><div class="value">Simulation & Review</div></div>
-</div>
-
-<div class="section">
-  <h3>Execution Metrics</h3>
-
-  <div class="row"><div class="label">Execution Consistency</div><div class="value">0%</div></div>
-  <div class="row"><div class="label">Completion Target</div><div class="value">Calculated</div></div>
-</div>
+`;
+</script>
 
 </body>
 </html>
