@@ -112,7 +112,7 @@
 
 <script>
 
-// 🔥 CERT MAP (TOP 5 PER DOMAIN)
+// 🔥 CERT MAP
 const certMap = {
   ENGINEERING: ["FE","PE","SSGB","SSBB","PMP"],
   PM: ["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
@@ -164,7 +164,7 @@ const certNames = {
   USMLE:"USMLE (MD Pathway)"
 };
 
-// 🔥 PREREQUISITE DETECTION (HIDDEN LOGIC)
+// 🔥 PREREQUISITE FLAGS (NO DETAILS SHOWN)
 const prereqFlags = {
   PE:true,
   NP:true,
@@ -210,7 +210,7 @@ function classify(score){
   return "NOT_READY";
 }
 
-// 🔥 MAIN ENGINE
+// 🔥 MAIN
 function generate(){
   const cert = document.getElementById("cert").value;
   const exp = document.getElementById("experience").value;
@@ -224,8 +224,7 @@ function generate(){
   const score = computeScore(exp,hours);
   let status = classify(score);
 
-  // 🔥 APPLY PREREQUISITE GATING
-  if(prereqFlags[cert] && exp === "0-1"){
+  if(prereqFlags[cert] && exp==="0-1"){
     status = "CONDITIONAL";
   }
 
@@ -253,7 +252,7 @@ function generate(){
     ` : ""}
 
     <div class="locked">
-      Detailed eligibility pathway and execution plan are available after activation
+      Detailed eligibility pathway and execution plan available after activation
     </div>
 
     <br>
@@ -262,8 +261,16 @@ function generate(){
   `;
 }
 
-// 🔥 STRIPE
+// 🔥 STRIPE + SAVE DATA
 function checkout(){
+  const data = {
+    cert: document.getElementById("cert").value,
+    exp: document.getElementById("experience").value,
+    hours: document.getElementById("hours").value
+  };
+
+  localStorage.setItem("stackory_user", JSON.stringify(data));
+
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
 
