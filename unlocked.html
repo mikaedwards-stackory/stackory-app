@@ -3,6 +3,8 @@
 <head>
   <title>STACKORY™ SYSTEM</title>
 
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
   <style>
     body {
       background:#000;
@@ -40,6 +42,14 @@
       border-radius:12px;
     }
 
+    .snapshot {
+      margin-top:20px;
+      padding:20px;
+      border:2px solid gold;
+      border-radius:12px;
+      text-align:center;
+    }
+
     .row {
       display:flex;
       justify-content:space-between;
@@ -55,13 +65,6 @@
       margin:15px 0;
       font-weight:bold;
       font-size:18px;
-    }
-
-    .locked {
-      text-align:center;
-      color:#666;
-      margin-top:15px;
-      font-size:13px;
     }
   </style>
 </head>
@@ -88,18 +91,18 @@
 
 <select id="experience">
   <option value="">Experience Level</option>
-  <option value="0-1">0–1 years</option>
-  <option value="2-3">2–3 years</option>
-  <option value="4-6">4–6 years</option>
-  <option value="7+">7+ years</option>
+  <option value="0-1">0–1</option>
+  <option value="2-3">2–3</option>
+  <option value="4-6">4–6</option>
+  <option value="7+">7+</option>
 </select>
 
 <select id="hours">
   <option value="">Weekly Study Commitment</option>
-  <option value="3">Light (2–4 hrs/week)</option>
-  <option value="7">Moderate (5–8 hrs/week)</option>
-  <option value="12">Focused (9–12 hrs/week)</option>
-  <option value="15">Accelerated (12+ hrs/week)</option>
+  <option value="3">Light</option>
+  <option value="7">Moderate</option>
+  <option value="12">Focused</option>
+  <option value="15">Accelerated</option>
 </select>
 
 <button onclick="generate()">ASSIGN POSITION</button>
@@ -108,85 +111,40 @@
 
 <script>
 
-// CERT MAP
+// DATA (same as before)
 const certMap = {
-  ENGINEERING: ["FE","PE","SSGB","SSBB","PMP"],
-  PM: ["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
-  DESIGN: ["GOOGLE_UX","ADOBE","UXQB","NNG","IDF"],
-  MARKETING: ["HUBSPOT","GOOGLE_DM","META","GOOGLE_ADS","HOOTSUITE"],
-  ESG: ["GRI","CFA_ESG","SASB","TCFD","LEED"],
-  OPS: ["SSGB","SSBB","CPIM","CSCP","PMP"],
-  DATA: ["GOOGLE_DA","IBM_DA","POWERBI","AWS_DA","TABLEAU"],
-  HEALTH: ["RN","NP","CCRN","CRA","USMLE"]
+  ENGINEERING:["FE","PE","SSGB","SSBB","PMP"],
+  PM:["PMP","CAPM","PMI_ACP","GOOGLE_PM","PRINCE2"],
+  DESIGN:["GOOGLE_UX","ADOBE"],
+  MARKETING:["HUBSPOT","GOOGLE_DM"],
+  ESG:["GRI","CFA_ESG"],
+  OPS:["SSGB","SSBB"],
+  DATA:["GOOGLE_DA","POWERBI"],
+  HEALTH:["RN","NP","CCRN","USMLE"]
 };
 
-// CERT NAMES
 const certNames = {
-  FE:"Fundamentals of Engineering",
-  PE:"Professional Engineer",
-  SSGB:"Six Sigma Green Belt",
-  SSBB:"Six Sigma Black Belt",
-  PMP:"PMP",
-  CAPM:"CAPM",
-  PMI_ACP:"PMI-ACP",
-  GOOGLE_PM:"Google Project Management",
-  PRINCE2:"PRINCE2",
-  GOOGLE_UX:"Google UX Design",
-  ADOBE:"Adobe Certified Professional",
-  UXQB:"UXQB Certification",
-  NNG:"Nielsen Norman UX",
-  IDF:"Interaction Design Foundation",
+  FE:"FE", PE:"PE", PMP:"PMP",
+  GOOGLE_PM:"Google PM",
+  GOOGLE_UX:"Google UX",
+  ADOBE:"Adobe",
   HUBSPOT:"HubSpot",
-  GOOGLE_DM:"Google Digital Marketing",
-  META:"Meta Marketing",
-  GOOGLE_ADS:"Google Ads",
-  HOOTSUITE:"Hootsuite",
-  GRI:"GRI Certification",
-  CFA_ESG:"CFA ESG Certificate",
-  SASB:"SASB",
-  TCFD:"TCFD",
-  LEED:"LEED Green Associate",
-  CPIM:"APICS CPIM",
-  CSCP:"APICS CSCP",
-  GOOGLE_DA:"Google Data Analytics",
-  IBM_DA:"IBM Data Analyst",
-  POWERBI:"Microsoft Power BI",
-  AWS_DA:"AWS Data Analytics",
-  TABLEAU:"Tableau",
-  RN:"Registered Nurse",
-  NP:"Nurse Practitioner",
-  CCRN:"Critical Care RN",
-  CRA:"Clinical Research Associate",
-  USMLE:"USMLE (MD Pathway)"
+  RN:"RN", NP:"NP", CCRN:"CCRN", USMLE:"USMLE"
 };
 
-// PREREQ FLAGS
-const prereqFlags = {
-  PE:true,
-  NP:true,
-  CCRN:true,
-  USMLE:true,
-  PMP:true
-};
-
-// DROPDOWN
 function updateCerts(){
   const domain = document.getElementById("domain").value;
   const cert = document.getElementById("cert");
 
-  cert.innerHTML = `<option value="">Select Certification</option>`;
+  cert.innerHTML = `<option>Select Certification</option>`;
 
-  if(!certMap[domain]) return;
-
-  certMap[domain].forEach(c=>{
+  certMap[domain]?.forEach(c=>{
     cert.innerHTML += `<option value="${c}">${certNames[c]}</option>`;
   });
 }
 
-// INDEX
 function computeScore(exp,hours){
   let score=0;
-
   if(exp==="0-1") score+=10;
   if(exp==="2-3") score+=20;
   if(exp==="4-6") score+=30;
@@ -199,22 +157,13 @@ function computeScore(exp,hours){
   return score;
 }
 
-// READINESS
-function classify(score){
-  if(score>=70) return "READY";
-  if(score>=40) return "CONDITIONAL";
-  return "NOT_READY";
-}
-
-// ACCESS TIERS
 function getAccess(score){
-  if(score>=85) return {label:"EXECUTIVE ACCESS", color:"gold"};
-  if(score>=70) return {label:"BOARDROOM ACCESS", color:"#fff"};
-  if(score>=40) return {label:"CONDITIONAL ACCESS", color:"gray"};
+  if(score>=85) return {label:"EXECUTIVE", color:"gold"};
+  if(score>=70) return {label:"BOARDROOM", color:"#fff"};
+  if(score>=40) return {label:"CONDITIONAL", color:"gray"};
   return {label:"NO ACCESS", color:"red"};
 }
 
-// MAIN
 function generate(){
 
   const cert = document.getElementById("cert").value;
@@ -226,64 +175,55 @@ function generate(){
     return;
   }
 
-  const index = computeScore(exp,hours);
-  let readiness = classify(index);
-  const access = getAccess(index);
-
-  if(prereqFlags[cert] && exp==="0-1"){
-    readiness = "CONDITIONAL";
-  }
+  const score = computeScore(exp,hours);
+  const access = getAccess(score);
 
   const output = document.getElementById("output");
   output.style.display="block";
 
   output.innerHTML = `
-    <div class="badge">Stackory™ Readiness: ${readiness}</div>
+
+    <div class="badge">Stackory™ Index: ${score}</div>
 
     <div class="row">
-      <div class="label">Stackory™ Index</div>
-      <div class="value">${index}</div>
-    </div>
-
-    <div class="row">
-      <div class="label">Position Assigned</div>
+      <div class="label">Position</div>
       <div class="value">${certNames[cert]}</div>
     </div>
 
     <div class="row">
-      <div class="label">Boardroom Access™</div>
+      <div class="label">Access</div>
       <div class="value" style="color:${access.color}">
         ${access.label}
       </div>
     </div>
 
-    ${prereqFlags[cert] ? `
-      <div class="row">
-        <div class="label">Prerequisite</div>
-        <div class="value">Detected</div>
-      </div>
-    ` : ""}
-
-    <div class="locked">
-      Execution Tracks™ unlock based on your access level
+    <div id="snapshot" class="snapshot">
+      <h3>STACKORY™ SNAPSHOT</h3>
+      <p>Index: ${score}</p>
+      <p>Access: ${access.label}</p>
+      <p>Position: ${certNames[cert]}</p>
     </div>
 
-    <br>
+    <button onclick="downloadSnapshot()">DOWNLOAD SNAPSHOT</button>
+
+    <br><br>
 
     <button onclick="checkout()">UNLOCK EXECUTION</button>
   `;
 }
 
+// SNAPSHOT DOWNLOAD
+function downloadSnapshot(){
+  html2canvas(document.getElementById("snapshot")).then(canvas=>{
+    const link = document.createElement("a");
+    link.download = "stackory_snapshot.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
 // STRIPE
 function checkout(){
-  const data = {
-    cert: document.getElementById("cert").value,
-    exp: document.getElementById("experience").value,
-    hours: document.getElementById("hours").value
-  };
-
-  localStorage.setItem("stackory_user", JSON.stringify(data));
-
   window.location.href="https://buy.stripe.com/28E9AM2jP4NnanG6tY3gk0d";
 }
 
