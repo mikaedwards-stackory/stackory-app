@@ -8,7 +8,7 @@
       background:#000;
       color:#fff;
       font-family:-apple-system, sans-serif;
-      max-width:900px;
+      max-width:1000px;
       margin:auto;
       padding:30px;
     }
@@ -16,47 +16,73 @@
     h1 {
       color:gold;
       text-align:center;
-      margin-bottom:20px;
+      margin-bottom:10px;
     }
 
     .status {
       text-align:center;
       color:gold;
-      font-weight:bold;
-      margin-bottom:20px;
+      font-size:12px;
+      letter-spacing:2px;
+      margin-bottom:30px;
     }
 
-    .card {
+    .matrix {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+
+    .panel {
       border:2px solid gold;
       border-radius:12px;
       padding:20px;
-      margin-top:20px;
       background:#0a0a0a;
+    }
+
+    .full {
+      grid-column: span 2;
+    }
+
+    .title {
+      color:gold;
+      font-size:14px;
+      margin-bottom:10px;
+      letter-spacing:1px;
     }
 
     .row {
       display:flex;
       justify-content:space-between;
-      padding:10px 0;
+      padding:8px 0;
       border-bottom:1px solid #222;
     }
 
-    .label { color:#aaa; }
+    .label { color:#888; }
     .value { font-weight:bold; }
 
-    .section-title {
+    .score {
+      text-align:center;
+      font-size:48px;
+      margin:10px 0;
       color:gold;
-      margin-bottom:10px;
-      font-size:16px;
     }
+
+    .badge {
+      text-align:center;
+      padding:8px;
+      border-radius:20px;
+      margin-bottom:10px;
+      font-weight:bold;
+    }
+
   </style>
 </head>
 
 <body>
 
-<h1>STACKORY™ ARTIFACT REPORT</h1>
-
-<div class="status">✓ SYSTEM ACCESS GRANTED</div>
+<h1>STACKORY™ ARTIFACT</h1>
+<div class="status">CREDENTIAL INTELLIGENCE SYSTEM</div>
 
 <div id="report"></div>
 
@@ -69,45 +95,29 @@ if(!user){
   document.body.innerHTML = `
     <div style="text-align:center; margin-top:100px;">
       <h2 style="color:gold;">Access Restricted</h2>
-      <p>No session detected. Please return to the system.</p>
-      <a href="/" style="color:gold;">Return to Stackory™</a>
+      <a href="/" style="color:gold;">Return</a>
     </div>
   `;
 }
 
-// 🔥 CERT DATA (same logic as index)
+// DATA
 const certData = {
   PMP:{name:"PMP", difficulty:8, salary:9, time:6},
-  GOOGLE_PM:{name:"Google PM", difficulty:4, salary:5, time:2},
-  GOOGLE_UX:{name:"Google UX", difficulty:5, salary:6, time:3},
-  ADOBE:{name:"Adobe", difficulty:4, salary:5, time:2},
-  HUBSPOT:{name:"HubSpot", difficulty:3, salary:5, time:1},
-  GRI:{name:"GRI", difficulty:6, salary:7, time:4},
-  SSGB:{name:"Six Sigma", difficulty:6, salary:7, time:4},
-  GOOGLE_DA:{name:"Google Data Analytics", difficulty:5, salary:7, time:3},
-
   FE:{name:"FE", difficulty:7, salary:8, time:6},
   PE:{name:"PE", difficulty:9, salary:10, time:12},
-
-  CNA:{name:"CNA", difficulty:3, salary:4, time:2},
-  LPN:{name:"LPN", difficulty:5, salary:6, time:4},
   RN:{name:"RN", difficulty:6, salary:7, time:6},
-  BSN:{name:"BSN", difficulty:7, salary:8, time:8},
   NP:{name:"NP", difficulty:9, salary:10, time:12},
-  CCRN:{name:"CCRN", difficulty:8, salary:9, time:6},
-  CRA:{name:"CRA", difficulty:7, salary:8, time:5},
   USMLE:{name:"Physician", difficulty:10, salary:10, time:24}
 };
 
-// 🔥 ACCESS LOGIC
 function getAccess(score){
-  if(score>=85) return "EXECUTIVE";
-  if(score>=70) return "BOARDROOM";
-  if(score>=40) return "CONDITIONAL";
-  return "RESTRICTED";
+  if(score>=85) return {label:"EXECUTIVE", color:"gold"};
+  if(score>=70) return {label:"BOARDROOM", color:"#fff"};
+  if(score>=40) return {label:"CONDITIONAL", color:"gray"};
+  return {label:"RESTRICTED", color:"red"};
 }
 
-// 🔥 LOAD USER
+// LOAD
 const cert = user.cert;
 const exp = user.exp;
 const hours = parseInt(user.hours);
@@ -116,83 +126,93 @@ const score = user.score;
 const data = certData[cert] || {name:cert, difficulty:5, salary:5, time:3};
 const access = getAccess(score);
 
-// 🔥 GAP DETECTION
-let gap = "No critical gaps detected";
+// GAP LOGIC
+let gap = "No major gaps detected";
 
 if(data.difficulty >= 8 && exp === "0-1"){
-  gap = "Experience gap: certification complexity exceeds current level";
+  gap = "Experience misalignment with certification level";
 }
 
 if(score < 50){
-  gap = "Positioning gap: insufficient readiness score";
+  gap = "Low readiness score impacts positioning";
 }
 
-// 🔥 TIMELINE ENGINE
-let timeline;
+// TIMELINE
+let timeline = hours >= 12
+  ? `${data.time} months (accelerated)`
+  : `${data.time + 2}–${data.time + 6} months`;
 
-if(hours >= 12){
-  timeline = `${data.time - 2} to ${data.time} months (accelerated path)`;
-} else if(hours >= 7){
-  timeline = `${data.time} to ${data.time + 2} months`;
-} else {
-  timeline = `${data.time + 2} to ${data.time + 6} months (extended path)`;
-}
+// AUTHORITY
+let authority = data.salary >= 9
+  ? "High Authority Signal"
+  : "Moderate Authority Signal";
 
-// 🔥 AUTHORITY SIGNAL
-let authority;
-
-if(data.salary >= 9){
-  authority = "High Authority Credential";
-} else if(data.salary >= 7){
-  authority = "Moderate Authority Credential";
-} else {
-  authority = "Entry-Level Credential Signal";
-}
-
-// 🔥 RENDER REPORT
+// RENDER MATRIX
 document.getElementById("report").innerHTML = `
 
-<div class="card">
-  <div class="section-title">CREDENTIAL CLASSIFICATION</div>
+<div class="matrix">
 
-  <div class="row">
-    <div class="label">Certification</div>
-    <div class="value">${data.name}</div>
+  <!-- SCORE PANEL -->
+  <div class="panel full">
+    <div class="badge" style="
+      background:${access.color === "gold" ? "gold" : "#222"};
+      color:${access.color === "gold" ? "#000" : access.color};
+    ">
+      ${access.label}
+    </div>
+
+    <div class="score">${score}</div>
+
+    <div style="text-align:center; color:#aaa;">
+      STACKORY™ INDEX
+    </div>
   </div>
 
-  <div class="row">
-    <div class="label">Experience</div>
-    <div class="value">${exp}</div>
+  <!-- CREDENTIAL -->
+  <div class="panel">
+    <div class="title">CREDENTIAL</div>
+
+    <div class="row">
+      <div class="label">Certification</div>
+      <div class="value">${data.name}</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Experience</div>
+      <div class="value">${exp}</div>
+    </div>
   </div>
 
-  <div class="row">
-    <div class="label">Stackory™ Index</div>
-    <div class="value">${score}</div>
+  <!-- AUTHORITY -->
+  <div class="panel">
+    <div class="title">AUTHORITY SIGNAL</div>
+
+    <div class="row">
+      <div class="label">Market Value</div>
+      <div class="value">${data.salary}/10</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Signal</div>
+      <div class="value">${authority}</div>
+    </div>
   </div>
 
-  <div class="row">
-    <div class="label">Access Tier</div>
-    <div class="value">${access}</div>
+  <!-- GAPS -->
+  <div class="panel">
+    <div class="title">GAPS DETECTED</div>
+    <div>${gap}</div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="panel">
+    <div class="title">EXECUTION TIMELINE</div>
+    <div>${timeline}</div>
   </div>
 
 </div>
-
-<div class="card">
-  <div class="section-title">GAPS DETECTED</div>
-  <div>${gap}</div>
-</div>
-
-<div class="card">
-  <div class="section-title">EXECUTION TIMELINE</div>
-  <div>${timeline}</div>
-</div>
-
-<div class="card">
-  <div class="section-title">AUTHORITY SIGNAL</div>
-  <div>${authority}</div>
-</div>
-
 `;
+
 </script>
 
 </body>
